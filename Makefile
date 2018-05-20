@@ -4,7 +4,7 @@ CPPFLAGS += -Wall -MD -MP
 
 default: main
 
-tests: $(TESTS:.cpp=.o)
+tests: $(TESTS:.cpp=.o) chip8.o
 	$(CXX) $+ -o $@
 
 -include $(SRC:%.cpp=%.d)
