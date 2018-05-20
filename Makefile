@@ -1,6 +1,6 @@
 SRC=$(wildcard *.cpp)
 TESTS=$(wildcard tests-*.cpp)
-CPPFLAGS += -Wall -MD -MP
+CPPFLAGS += -std=c++17 -Wall -MD -MP
 
 default: main
 
