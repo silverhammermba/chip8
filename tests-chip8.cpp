@@ -15,9 +15,9 @@ TEST_CASE("Opcodes are retrievable", "[chip8]")
 	REQUIRE(Chip8::get_opcode(memory, 3) == 0xef00);
 }
 
-#define OP(name, arg) std::make_tuple(&Chip8:: name, (arg))
+#define CHIP8_OP(NAME, N, X, Y) std::make_tuple(&Chip8:: op_ ## NAME, N, X, Y)
 
 TEST_CASE("Opcodes are decodable", "[chip8]")
 {
-	REQUIRE(Chip8::decode_opcode(0x00e0) == OP(clear_screen, 0));
+	REQUIRE(Chip8::decode_opcode(0x00e0) == CHIP8_OP(clear, 0, 0, 0));
 }
