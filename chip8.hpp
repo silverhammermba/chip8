@@ -34,4 +34,3 @@ public:
 	// opcode implementations
 	void clear_screen(uint16_t);
 };
-

@@ -12,6 +12,9 @@ void Chip8::step()
 
 	auto [op, arg] = decode_opcode(opcode);
 	(this->*op)(arg);
+
+	if (delay_timer > 0) --delay_timer;
+	if (sound_timer > 0) --sound_timer;
 }
 
 uint16_t Chip8::get_opcode(std::array<uint8_t, memory_size>& _memory, uint16_t _counter)
