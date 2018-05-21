@@ -277,36 +277,73 @@ TEST_CASE("Op madd 8XY4", "[chip8]")
 {
 	Chip8 chip8;
 
-	// check carry bit
-	chip8.op_store(255, 10, 0);
-	chip8.op_store(1, 12, 0);
+	SECTION("carry bit")
+	{
+		chip8.op_store(255, 10, 0);
+		chip8.op_store(1, 12, 0);
 
-	chip8.op_madd(0, 11, 10);
-	REQUIRE(chip8.get_register(0xf) == 0);
-	chip8.op_madd(0, 11, 12);
-	REQUIRE(chip8.get_register(0xf) == 1);
+		chip8.op_madd(0, 11, 10);
+		REQUIRE(chip8.get_register(0xf) == 0);
+		chip8.op_madd(0, 11, 12);
+		REQUIRE(chip8.get_register(0xf) == 1);
+	}
 
-	// check some general math
-	chip8.op_store(10, 1, 0);
-	chip8.op_store(45, 2, 0);
+	SECTION("general addition")
+	{
+		chip8.op_store(10, 1, 0);
+		chip8.op_store(45, 2, 0);
 
-	chip8.op_madd(0, 1, 2);
-	REQUIRE(chip8.get_register(1) == 55);
-	REQUIRE(chip8.get_register(0xf) == 0);
+		chip8.op_madd(0, 1, 2);
+		REQUIRE(chip8.get_register(1) == 55);
+		REQUIRE(chip8.get_register(2) == 45);
+		REQUIRE(chip8.get_register(0xf) == 0);
 
-	chip8.op_store(210, 3, 0);
-	chip8.op_madd(0, 1, 3);
-	REQUIRE(chip8.get_register(1) == 9);
-	REQUIRE(chip8.get_register(0xf) == 1);
+		chip8.op_store(210, 3, 0);
+		chip8.op_madd(0, 1, 3);
+		REQUIRE(chip8.get_register(1) == 9);
+		REQUIRE(chip8.get_register(3) == 210);
+		REQUIRE(chip8.get_register(0xf) == 1);
 
-	chip8.op_madd(0, 1, 2);
-	REQUIRE(chip8.get_register(1) == 54);
-	REQUIRE(chip8.get_register(0xf) == 0);
+		chip8.op_madd(0, 1, 2);
+		REQUIRE(chip8.get_register(1) == 54);
+		REQUIRE(chip8.get_register(0xf) == 0);
+	}
 }
 
 TEST_CASE("Op sub 8XY5", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	SECTION("check carry bit")
+	{
+		chip8.op_store(1, 10, 0);
+		chip8.op_store(1, 12, 0);
+
+		chip8.op_sub(0, 10, 12);
+		REQUIRE(chip8.get_register(0xf) == 0);
+		chip8.op_sub(0, 10, 12);
+		REQUIRE(chip8.get_register(0xf) == 1);
+	}
+
+	SECTION("general subtraction")
+	{
+		chip8.op_store(10, 1, 0);
+		chip8.op_store(45, 2, 0);
+
+		chip8.op_sub(0, 2, 1);
+		REQUIRE(chip8.get_register(2) == 35);
+		REQUIRE(chip8.get_register(0xf) == 0);
+
+		chip8.op_store(210, 3, 0);
+		chip8.op_sub(0, 2, 3);
+		REQUIRE(chip8.get_register(2) == 81);
+		REQUIRE(chip8.get_register(3) == 210);
+		REQUIRE(chip8.get_register(0xf) == 1);
+
+		chip8.op_sub(0, 2, 1);
+		REQUIRE(chip8.get_register(2) == 71);
+		REQUIRE(chip8.get_register(0xf) == 0);
+	}
 }
 
 TEST_CASE("Op shiftr 8XY6", "[chip8]")
