@@ -220,8 +220,10 @@ CHIP8_OP_XY(sub)
 	data_registers[0xf] = carry;
 }
 
-CHIP8_OP(shiftr)
+CHIP8_OP_XY(shiftr)
 {
+	data_registers[x] = data_registers[y] >> 1;
+	data_registers[0xf] = data_registers[y] & 1;
 }
 
 CHIP8_OP(rsub)

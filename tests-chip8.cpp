@@ -348,7 +348,18 @@ TEST_CASE("Op sub 8XY5", "[chip8]")
 
 TEST_CASE("Op shiftr 8XY6", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.op_shiftr(0, 2, 1);
+	REQUIRE(chip8.get_register(2) == 0);
+	REQUIRE(chip8.get_register(1) == 0);
+	REQUIRE(chip8.get_register(0xf) == 0);
+
+	chip8.op_store(0x1f, 1, 0);
+	chip8.op_shiftr(0, 2, 1);
+	REQUIRE(chip8.get_register(2) == 0xf);
+	REQUIRE(chip8.get_register(1) == 0x1f);
+	REQUIRE(chip8.get_register(0xf) == 1);
 }
 
 TEST_CASE("Op rsub 8XY7", "[chip8]")
