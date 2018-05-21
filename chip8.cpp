@@ -226,8 +226,11 @@ CHIP8_OP_XY(shiftr)
 	data_registers[0xf] = data_registers[y] & 1;
 }
 
-CHIP8_OP(rsub)
+CHIP8_OP_XY(rsub)
 {
+	bool carry = data_registers[x] > data_registers[y];
+	data_registers[x] = data_registers[y] - data_registers[x];
+	data_registers[0xf] = carry;
 }
 
 CHIP8_OP(shiftl)

@@ -364,7 +364,39 @@ TEST_CASE("Op shiftr 8XY6", "[chip8]")
 
 TEST_CASE("Op rsub 8XY7", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	SECTION("check carry bit")
+	{
+		chip8.op_store(1, 10, 0);
+		chip8.op_store(1, 12, 0);
+
+		chip8.op_rsub(0, 12, 10);
+		REQUIRE(chip8.get_register(0xf) == 0);
+		chip8.op_rsub(0, 10, 12);
+		REQUIRE(chip8.get_register(0xf) == 1);
+	}
+
+	SECTION("general subtraction")
+	{
+		chip8.op_store(10, 1, 0);
+		chip8.op_store(45, 2, 0);
+
+		chip8.op_rsub(0, 1, 2);
+		REQUIRE(chip8.get_register(1) == 35);
+		REQUIRE(chip8.get_register(2) == 45);
+		REQUIRE(chip8.get_register(0xf) == 0);
+
+		chip8.op_store(210, 3, 0);
+		chip8.op_rsub(0, 3, 2);
+		REQUIRE(chip8.get_register(3) == 91);
+		REQUIRE(chip8.get_register(2) == 45);
+		REQUIRE(chip8.get_register(0xf) == 1);
+
+		chip8.op_rsub(0, 2, 3);
+		REQUIRE(chip8.get_register(2) == 46);
+		REQUIRE(chip8.get_register(0xf) == 0);
+	}
 }
 
 TEST_CASE("Op shiftl 8XYE", "[chip8]")
