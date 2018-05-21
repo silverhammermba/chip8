@@ -31,7 +31,6 @@ TEST_CASE("Opcodes are decodable", "[chip8]")
 	REQUIRE(Chip8::decode_opcode(0x4b42) == CHIP8_OP(if_ne, 0x42, 0xb, 0));
 
 	REQUIRE(Chip8::decode_opcode(0x5cd0) == CHIP8_OP(if_cmp, 0, 0xc, 0xd));
-	REQUIRE(Chip8::decode_opcode(0x5cd4) == CHIP8_OP(if_cmp, 0, 0xc, 0xd));
 
 	REQUIRE(Chip8::decode_opcode(0x620a) == CHIP8_OP(store, 0x0a, 0x2, 0));
 
@@ -48,7 +47,6 @@ TEST_CASE("Opcodes are decodable", "[chip8]")
 	REQUIRE(Chip8::decode_opcode(0x8e3e) == CHIP8_OP(shiftl, 0, 0xe, 0x3));
 
 	REQUIRE(Chip8::decode_opcode(0x9460) == CHIP8_OP(if_ncmp, 0, 0x4, 0x6));
-	REQUIRE(Chip8::decode_opcode(0x9462) == CHIP8_OP(if_ncmp, 0, 0x4, 0x6));
 
 	REQUIRE(Chip8::decode_opcode(0xadad) == CHIP8_OP(save, 0xdad, 0, 0));
 
@@ -70,4 +68,15 @@ TEST_CASE("Opcodes are decodable", "[chip8]")
 	REQUIRE(Chip8::decode_opcode(0xf633) == CHIP8_OP(deci, 0, 0x6, 0));
 	REQUIRE(Chip8::decode_opcode(0xfa55) == CHIP8_OP(dump, 0, 0xa, 0));
 	REQUIRE(Chip8::decode_opcode(0xfc65) == CHIP8_OP(load, 0, 0xc, 0));
+}
+
+TEST_CASE("Invalid opcodes decode to null", "[chip8]")
+{
+	auto nullop = std::make_tuple((Chip8::opfn_t)nullptr, 0, 0, 0);
+	REQUIRE(Chip8::decode_opcode(0x00f0) == nullop);
+	REQUIRE(Chip8::decode_opcode(0x5243) == nullop);
+	REQUIRE(Chip8::decode_opcode(0x8229) == nullop);
+	REQUIRE(Chip8::decode_opcode(0x987d) == nullop);
+	REQUIRE(Chip8::decode_opcode(0xe1fa) == nullop);
+	REQUIRE(Chip8::decode_opcode(0xf235) == nullop);
 }

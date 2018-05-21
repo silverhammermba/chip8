@@ -46,6 +46,7 @@ std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint1
 		case 0x4:
 			return {OP_PTR(if_ne), opcode & 0x00ff, (opcode >> 8) & 0xf, 0};
 		case 0x5:
+			if ((opcode & 0xf) != 0x0) break;
 			return {OP_PTR(if_cmp), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
 		case 0x6:
 			return {OP_PTR(store), opcode & 0x00ff, (opcode >> 8) & 0xf, 0};
@@ -75,6 +76,7 @@ std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint1
 			}
 			break;
 		case 0x9:
+			if ((opcode & 0xf) != 0x0) break;
 			return {OP_PTR(if_ncmp), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
 		case 0xa:
 			return {OP_PTR(save), opcode & 0x0fff, 0, 0};
