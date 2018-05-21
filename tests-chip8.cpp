@@ -80,3 +80,173 @@ TEST_CASE("Invalid opcodes decode to null", "[chip8]")
 	REQUIRE(Chip8::decode_opcode(0xe1fa) == nullop);
 	REQUIRE(Chip8::decode_opcode(0xf235) == nullop);
 }
+
+TEST_CASE("Opcode clear 00E0", "[chip8]")
+{
+	Chip8 chip8;
+}
+
+TEST_CASE("Opcode ret 00EE", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode goto 1NNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode call 2NNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode if_eq 3XNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode if_ne 4XNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode if_cmp 5XY0", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode store 6XNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode add 7XNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode set 8XY0", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode or 8XY1", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode and 8XY2", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode xor 8XY3", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode madd 8XY4", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode sub 8XY5", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode shiftr 8XY6", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode rsub 8XY7", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode shiftl 8XYE", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode if_ncmp 9XY0", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode save ANNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode jmp BNNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode rand CXNN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode disp DXYN", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode press EX9E", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode release EXA1", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode getdel FX07", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode wait FX0A", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode setdel FX15", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode setsnd FX18", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode inc FX1E", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode font FX29", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode deci FX33", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode dump FX55", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Opcode load FX65", "[chip8]")
+{
+	// TODO
+}
