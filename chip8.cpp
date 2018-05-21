@@ -119,7 +119,13 @@ std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint1
 	return {nullptr, 0, 0, 0};
 }
 
-#define CHIP8_OP(NAME) void Chip8::op_ ## NAME (uint16_t n, uint8_t x, uint8_t y)
+// macros for defining op implementations. since all ops accept all arguments, just omit names of unused ones
+#define CHIP8_OP(NAME) void Chip8::op_ ## NAME (uint16_t, uint8_t, uint8_t)
+#define CHIP8_OP_X(NAME) void Chip8::op_ ## NAME (uint16_t, uint8_t x, uint8_t)
+#define CHIP8_OP_N(NAME) void Chip8::op_ ## NAME (uint16_t n, uint8_t, uint8_t)
+#define CHIP8_OP_XY(NAME) void Chip8::op_ ## NAME (uint16_t, uint8_t x, uint8_t y)
+#define CHIP8_OP_XN(NAME) void Chip8::op_ ## NAME (uint16_t n, uint8_t x, uint8_t)
+#define CHIP8_OP_XYN(NAME) void Chip8::op_ ## NAME (uint16_t n, uint8_t x, uint8_t y)
 
 // opcode implementations
 
@@ -134,55 +140,67 @@ CHIP8_OP(ret)
 	stack.pop_back();
 }
 
-CHIP8_OP(goto)
+CHIP8_OP_N(goto)
 {
 	program_counter = n;
 }
 
-CHIP8_OP(call)
+CHIP8_OP_N(call)
 {
 	stack.push_back(program_counter);
 	program_counter = n;
 }
 
-CHIP8_OP(if_eq)
+CHIP8_OP_XN(if_eq)
 {
+	if (data_registers[x] == n) program_counter += 2;
 }
 
-CHIP8_OP(if_ne)
+CHIP8_OP_XN(if_ne)
 {
+	if (data_registers[x] != n) program_counter += 2;
 }
 
-CHIP8_OP(if_cmp)
+CHIP8_OP_XY(if_cmp)
 {
+	if (data_registers[x] == data_registers[y]) program_counter += 2;
 }
 
-CHIP8_OP(store)
+CHIP8_OP_XN(store)
 {
+	data_registers[x] = n;
 }
 
-CHIP8_OP(add)
+CHIP8_OP_XN(add)
 {
+	data_registers[x] += n;
 }
 
-CHIP8_OP(set)
+CHIP8_OP_XY(set)
 {
+	data_registers[x] = data_registers[y];
 }
 
-CHIP8_OP(or)
+CHIP8_OP_XY(or)
 {
+	data_registers[x] |= data_registers[y];
 }
 
-CHIP8_OP(and)
+CHIP8_OP_XY(and)
 {
+	data_registers[x] &= data_registers[y];
 }
 
-CHIP8_OP(xor)
+CHIP8_OP_XY(xor)
 {
+	data_registers[x] ^= data_registers[y];
 }
 
-CHIP8_OP(madd)
+CHIP8_OP_XY(madd)
 {
+	bool carry = data_registers[y] >= (0x10 - data_registers[x]);
+	data_registers[x] += data_registers[y];
+	data_registers[0xf] = carry;
 }
 
 CHIP8_OP(sub)
