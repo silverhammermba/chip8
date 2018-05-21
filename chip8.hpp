@@ -31,6 +31,7 @@ public:
 	Chip8();
 
 	uint16_t get_program_counter() const;
+	uint8_t get_register(uint16_t) const;
 
 	void step();
 

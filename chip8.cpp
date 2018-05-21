@@ -15,6 +15,11 @@ uint16_t Chip8::get_program_counter() const
 	return program_counter;
 }
 
+uint8_t Chip8::get_register(uint16_t x) const
+{
+	return data_registers.at(x);
+}
+
 void Chip8::step()
 {
 	uint16_t opcode = get_opcode(memory, program_counter);
@@ -203,7 +208,7 @@ CHIP8_OP_XY(xor)
 
 CHIP8_OP_XY(madd)
 {
-	bool carry = data_registers[y] >= (0x10 - data_registers[x]);
+	bool carry = data_registers[y] >= (0x100 - data_registers[x]);
 	data_registers[x] += data_registers[y];
 	data_registers[0xf] = carry;
 }
