@@ -277,6 +277,16 @@ TEST_CASE("Op madd 8XY4", "[chip8]")
 {
 	Chip8 chip8;
 
+	// check carry bit
+	chip8.op_store(255, 10, 0);
+	chip8.op_store(1, 12, 0);
+
+	chip8.op_madd(0, 11, 10);
+	REQUIRE(chip8.get_register(0xf) == 0);
+	chip8.op_madd(0, 11, 12);
+	REQUIRE(chip8.get_register(0xf) == 1);
+
+	// check some general math
 	chip8.op_store(10, 1, 0);
 	chip8.op_store(45, 2, 0);
 
