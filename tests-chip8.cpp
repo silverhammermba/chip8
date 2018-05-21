@@ -81,172 +81,190 @@ TEST_CASE("Invalid opcodes decode to null", "[chip8]")
 	REQUIRE(Chip8::decode_opcode(0xf235) == nullop);
 }
 
-TEST_CASE("Opcode clear 00E0", "[chip8]")
+TEST_CASE("Op clear 00E0", "[chip8]")
+{
+	// TODO
+}
+
+TEST_CASE("Op ret 00EE", "[chip8]")
 {
 	Chip8 chip8;
+
+	chip8.op_call(0xbad, 0, 0);
+	chip8.op_call(0xdad, 0, 0);
+
+	chip8.op_ret(0, 0, 0);
+	REQUIRE(chip8.get_program_counter() == 0xbad);
+	chip8.op_ret(0, 0, 0);
+	REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start);
 }
 
-TEST_CASE("Opcode ret 00EE", "[chip8]")
+TEST_CASE("Op goto 1NNN", "[chip8]")
+{
+	Chip8 chip8;
+
+	chip8.op_goto(0x2ad, 0, 0);
+	REQUIRE(chip8.get_program_counter() == 0x2ad);
+	chip8.op_goto(0xdad, 0, 0);
+	REQUIRE(chip8.get_program_counter() == 0xdad);
+}
+
+TEST_CASE("Op call 2NNN", "[chip8]")
+{
+	Chip8 chip8;
+
+	chip8.op_call(0xbad, 0, 0);
+	REQUIRE(chip8.get_program_counter() == 0xbad);
+	chip8.op_call(0xdad, 0, 0);
+	REQUIRE(chip8.get_program_counter() == 0xdad);
+}
+
+TEST_CASE("Op if_eq 3XNN", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode goto 1NNN", "[chip8]")
+TEST_CASE("Op if_ne 4XNN", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode call 2NNN", "[chip8]")
+TEST_CASE("Op if_cmp 5XY0", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode if_eq 3XNN", "[chip8]")
+TEST_CASE("Op store 6XNN", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode if_ne 4XNN", "[chip8]")
+TEST_CASE("Op add 7XNN", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode if_cmp 5XY0", "[chip8]")
+TEST_CASE("Op set 8XY0", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode store 6XNN", "[chip8]")
+TEST_CASE("Op or 8XY1", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode add 7XNN", "[chip8]")
+TEST_CASE("Op and 8XY2", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode set 8XY0", "[chip8]")
+TEST_CASE("Op xor 8XY3", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode or 8XY1", "[chip8]")
+TEST_CASE("Op madd 8XY4", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode and 8XY2", "[chip8]")
+TEST_CASE("Op sub 8XY5", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode xor 8XY3", "[chip8]")
+TEST_CASE("Op shiftr 8XY6", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode madd 8XY4", "[chip8]")
+TEST_CASE("Op rsub 8XY7", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode sub 8XY5", "[chip8]")
+TEST_CASE("Op shiftl 8XYE", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode shiftr 8XY6", "[chip8]")
+TEST_CASE("Op if_ncmp 9XY0", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode rsub 8XY7", "[chip8]")
+TEST_CASE("Op save ANNN", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode shiftl 8XYE", "[chip8]")
+TEST_CASE("Op jmp BNNN", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode if_ncmp 9XY0", "[chip8]")
+TEST_CASE("Op rand CXNN", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode save ANNN", "[chip8]")
+TEST_CASE("Op disp DXYN", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode jmp BNNN", "[chip8]")
+TEST_CASE("Op press EX9E", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode rand CXNN", "[chip8]")
+TEST_CASE("Op release EXA1", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode disp DXYN", "[chip8]")
+TEST_CASE("Op getdel FX07", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode press EX9E", "[chip8]")
+TEST_CASE("Op wait FX0A", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode release EXA1", "[chip8]")
+TEST_CASE("Op setdel FX15", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode getdel FX07", "[chip8]")
+TEST_CASE("Op setsnd FX18", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode wait FX0A", "[chip8]")
+TEST_CASE("Op inc FX1E", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode setdel FX15", "[chip8]")
+TEST_CASE("Op font FX29", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode setsnd FX18", "[chip8]")
+TEST_CASE("Op deci FX33", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode inc FX1E", "[chip8]")
+TEST_CASE("Op dump FX55", "[chip8]")
 {
 	// TODO
 }
 
-TEST_CASE("Opcode font FX29", "[chip8]")
-{
-	// TODO
-}
-
-TEST_CASE("Opcode deci FX33", "[chip8]")
-{
-	// TODO
-}
-
-TEST_CASE("Opcode dump FX55", "[chip8]")
-{
-	// TODO
-}
-
-TEST_CASE("Opcode load FX65", "[chip8]")
+TEST_CASE("Op load FX65", "[chip8]")
 {
 	// TODO
 }

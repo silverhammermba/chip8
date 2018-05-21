@@ -11,6 +11,9 @@ public:
 	constexpr static unsigned int memory_size = 4096;
 	constexpr static unsigned int registers_size = 0x10; // must be nibble-addressable
 	constexpr static unsigned int stack_size = 48; // just initial size, can grow unbounded
+
+	constexpr static uint16_t program_mem_start = 0x200;
+
 	typedef void (Chip8::*opfn_t)(uint16_t, uint8_t, uint8_t);
 
 private:
@@ -26,6 +29,8 @@ private:
 
 public:
 	Chip8();
+
+	uint16_t get_program_counter() const;
 
 	void step();
 

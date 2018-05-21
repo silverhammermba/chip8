@@ -4,10 +4,15 @@ Chip8::Chip8()
 {
 	stack.reserve(stack_size);
 
-	program_counter = 0x200;
+	program_counter = program_mem_start;
 
 	delay_timer = 0;
 	sound_timer = 0;
+}
+
+uint16_t Chip8::get_program_counter() const
+{
+	return program_counter;
 }
 
 void Chip8::step()
