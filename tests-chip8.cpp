@@ -1,3 +1,4 @@
+#include <array>
 #include <catch/catch.hpp>
 #include "chip8.hpp"
 
@@ -417,22 +418,82 @@ TEST_CASE("Op shiftl 8XYE", "[chip8]")
 
 TEST_CASE("Op if_ncmp 9XY0", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.op_store(10, 1, 0);
+	chip8.op_store(10, 2, 0);
+	chip8.op_store(20, 3, 0);
+
+	SECTION("when unequal")
+	{
+		chip8.op_if_ncmp(0, 1, 3);
+		REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start + 2);
+		chip8.op_if_ncmp(0, 2, 4);
+		REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start + 4);
+	}
+	SECTION("when equal")
+	{
+		chip8.op_if_ncmp(0, 1, 2);
+		REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start);
+	}
 }
 
 TEST_CASE("Op save ANNN", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.op_save(0xc0d, 0, 0);
+	REQUIRE(chip8.get_address_register() == 0xc0d);
 }
 
 TEST_CASE("Op jmp BNNN", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.op_jmp(0, 0, 0);
+	REQUIRE(chip8.get_program_counter() == 0);
+
+	chip8.op_jmp(10, 0, 0);
+	REQUIRE(chip8.get_program_counter() == 10);
+
+	chip8.op_store(5, 0, 0);
+	chip8.op_jmp(10, 0, 0);
+	REQUIRE(chip8.get_program_counter() == 15);
 }
 
 TEST_CASE("Op rand CXNN", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	SECTION("output matches mask")
+	{
+		uint8_t mask = 0x9a;
+
+		int failures = 0;
+		for (int i = 0; i < 10000; ++i)
+		{
+			chip8.op_rand(mask, 4, 0);
+			if (chip8.get_register(4) & ~mask) ++failures;
+		}
+		REQUIRE(failures == 0);
+	}
+
+	SECTION("can output every possible value")
+	{
+		std::array<unsigned int, 0x100> counts {};
+
+		for (int i = 0; i < 10000; ++i)
+		{
+			chip8.op_rand(0xff, 5, 0);
+			++counts[chip8.get_register(5)];
+		}
+		int failures = 0;
+		for (auto count : counts)
+		{
+			if (count == 0) ++failures;
+		}
+		REQUIRE(failures == 0);
+	}
 }
 
 TEST_CASE("Op disp DXYN", "[chip8]")

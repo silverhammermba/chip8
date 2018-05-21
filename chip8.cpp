@@ -1,18 +1,24 @@
 #include "chip8.hpp"
 
-Chip8::Chip8()
+uint8_t Chip8::rng()
+{
+	return uniform_distribution(random_generator);
+}
+
+// TODO seed RNG somehow?
+Chip8::Chip8() : random_generator(std::random_device()()), uniform_distribution(0, 0xff)
 {
 	stack.reserve(stack_size);
-
-	program_counter = program_mem_start;
-
-	delay_timer = 0;
-	sound_timer = 0;
 }
 
 uint16_t Chip8::get_program_counter() const
 {
 	return program_counter;
+}
+
+uint16_t Chip8::get_address_register() const
+{
+	return address_register;
 }
 
 uint8_t Chip8::get_register(uint16_t x) const
@@ -240,20 +246,24 @@ CHIP8_OP_XY(shiftl)
 	data_registers[0xf] = carry;
 }
 
-CHIP8_OP(if_ncmp)
+CHIP8_OP_XY(if_ncmp)
 {
+	if (data_registers[x] != data_registers[y]) program_counter += 2;
 }
 
-CHIP8_OP(save)
+CHIP8_OP_N(save)
 {
+	address_register = n;
 }
 
-CHIP8_OP(jmp)
+CHIP8_OP_N(jmp)
 {
+	program_counter = data_registers[0] + n;
 }
 
-CHIP8_OP(rand)
+CHIP8_OP_XN(rand)
 {
+	data_registers[x] = rng() & n;
 }
 
 CHIP8_OP(disp)

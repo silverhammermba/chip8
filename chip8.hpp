@@ -1,5 +1,6 @@
 #include <array>
 #include <cstdint>
+#include <random>
 #include <tuple>
 #include <vector>
 
@@ -17,20 +18,26 @@ public:
 	typedef void (Chip8::*opfn_t)(uint16_t, uint8_t, uint8_t);
 
 private:
-	std::array<uint8_t, memory_size> memory; // RAM
-	std::array<uint8_t, registers_size> data_registers; // V0-VF
-	uint16_t address_register; // I
+	std::array<uint8_t, memory_size> memory {}; // RAM
+	std::array<uint8_t, registers_size> data_registers {}; // V0-VF
+	uint16_t address_register = 0; // I
 
 	std::vector<uint16_t> stack; // historically 24 frames, but how about infinite?
-	uint16_t program_counter;
+	uint16_t program_counter = program_mem_start;
 
-	uint8_t delay_timer;
-	uint8_t sound_timer;
+	uint8_t delay_timer = 0;
+	uint8_t sound_timer = 0;
+
+	std::default_random_engine random_generator;
+	std::uniform_int_distribution<uint8_t> uniform_distribution;
+
+	uint8_t rng();
 
 public:
 	Chip8();
 
 	uint16_t get_program_counter() const;
+	uint16_t get_address_register() const;
 	uint8_t get_register(uint16_t) const;
 
 	void step();
