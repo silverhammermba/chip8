@@ -233,8 +233,11 @@ CHIP8_OP_XY(rsub)
 	data_registers[0xf] = carry;
 }
 
-CHIP8_OP(shiftl)
+CHIP8_OP_XY(shiftl)
 {
+	bool carry = (data_registers[y] & 0x80) != 0;
+	data_registers[x] = (data_registers[y] <<= 1);
+	data_registers[0xf] = carry;
 }
 
 CHIP8_OP(if_ncmp)
