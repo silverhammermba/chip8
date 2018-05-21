@@ -27,20 +27,28 @@ uint16_t Chip8::get_opcode(std::array<uint8_t, memory_size>& _memory, uint16_t _
 	return (_memory[_counter] << 8) | _memory[_counter + 1];
 }
 
-std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint16_t)
+#define OP_PTR(NAME) (&Chip8::op_ ## NAME )
+
+std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint16_t opcode)
 {
-	// TODO actually decode
-	return {&Chip8::op_clear, 0, 0, 0};
+	switch (opcode >> 12)
+	{
+		case 0x0:
+			if (opcode == 0x00e0) return {OP_PTR(clear), 0, 0, 0};
+			if (opcode == 0x00ee) return {OP_PTR(ret), 0, 0, 0};
+			// TODO error for other cases?
+		case 0x1:
+			return {OP_PTR(goto), opcode & 0x0fff, 0, 0};
+		case 0x2:
+			return {OP_PTR(call), opcode & 0x0fff, 0, 0};
+	}
+
+	return {nullptr, 0, 0, 0};
 }
 
 #define CHIP8_OP(NAME) void Chip8::op_ ## NAME (uint16_t n, uint8_t x, uint8_t y)
 
 // opcode implementations
-
-CHIP8_OP(call_prg)
-{
-	// unimplemented, should call a RCA 1802 program at the given address
-}
 
 CHIP8_OP(clear)
 {
@@ -53,9 +61,18 @@ CHIP8_OP(ret)
 	stack.pop_back();
 }
 
-/*
 CHIP8_OP(goto)
-CHIP8_OP(call_sub)
+{
+	program_counter = n;
+}
+
+CHIP8_OP(call)
+{
+	stack.push_back(program_counter);
+	program_counter = n;
+}
+
+/*
 CHIP8_OP(if_eq)
 CHIP8_OP(if_ne)
 CHIP8_OP(if_cmp)

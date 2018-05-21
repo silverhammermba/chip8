@@ -20,4 +20,7 @@ TEST_CASE("Opcodes are retrievable", "[chip8]")
 TEST_CASE("Opcodes are decodable", "[chip8]")
 {
 	REQUIRE(Chip8::decode_opcode(0x00e0) == CHIP8_OP(clear, 0, 0, 0));
+	REQUIRE(Chip8::decode_opcode(0x00ee) == CHIP8_OP(ret, 0, 0, 0));
+	REQUIRE(Chip8::decode_opcode(0x1bed) == CHIP8_OP(goto, 0xbed, 0, 0));
+	REQUIRE(Chip8::decode_opcode(0x2b0b) == CHIP8_OP(call, 0xb0b, 0, 0));
 }

@@ -38,11 +38,11 @@ public:
 	 * The names don't need to be readable because normally these are called
 	 * only by the interpreter.
 	 */
-	CHIP8_OP(call_prg); // 0NNN
+	// intentionally ommitted 0NNN for calling RCA 1802 programs
 	CHIP8_OP(clear); // 00E0
 	CHIP8_OP(ret); // 00EE
 	CHIP8_OP(goto); // 1NNN
-	CHIP8_OP(call_sub); // 2NNN
+	CHIP8_OP(call); // 2NNN
 	CHIP8_OP(if_eq); // 3XNN
 	CHIP8_OP(if_ne); // 4XNN
 	CHIP8_OP(if_cmp); // 5XY0
