@@ -36,13 +36,84 @@ std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint1
 		case 0x0:
 			if (opcode == 0x00e0) return {OP_PTR(clear), 0, 0, 0};
 			if (opcode == 0x00ee) return {OP_PTR(ret), 0, 0, 0};
-			// TODO error for other cases?
+			break;
 		case 0x1:
 			return {OP_PTR(goto), opcode & 0x0fff, 0, 0};
 		case 0x2:
 			return {OP_PTR(call), opcode & 0x0fff, 0, 0};
+		case 0x3:
+			return {OP_PTR(if_eq), opcode & 0x00ff, (opcode >> 8) & 0xf, 0};
+		case 0x4:
+			return {OP_PTR(if_ne), opcode & 0x00ff, (opcode >> 8) & 0xf, 0};
+		case 0x5:
+			return {OP_PTR(if_cmp), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+		case 0x6:
+			return {OP_PTR(store), opcode & 0x00ff, (opcode >> 8) & 0xf, 0};
+		case 0x7:
+			return {OP_PTR(add), opcode & 0x00ff, (opcode >> 8) & 0xf, 0};
+		case 0x8:
+			switch (opcode & 0xf)
+			{
+				case 0x0:
+					return {OP_PTR(set), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+				case 0x1:
+					return {OP_PTR(or), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+				case 0x2:
+					return {OP_PTR(and), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+				case 0x3:
+					return {OP_PTR(xor), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+				case 0x4:
+					return {OP_PTR(madd), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+				case 0x5:
+					return {OP_PTR(sub), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+				case 0x6:
+					return {OP_PTR(shiftr), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+				case 0x7:
+					return {OP_PTR(rsub), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+				case 0xe:
+					return {OP_PTR(shiftl), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+			}
+			break;
+		case 0x9:
+			return {OP_PTR(if_ncmp), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+		case 0xa:
+			return {OP_PTR(save), opcode & 0x0fff, 0, 0};
+		case 0xb:
+			return {OP_PTR(jmp), opcode & 0x0fff, 0, 0};
+		case 0xc:
+			return {OP_PTR(rand), opcode & 0x00ff, (opcode >> 8) & 0xf, 0};
+		case 0xd:
+			return {OP_PTR(disp), opcode & 0x000f, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
+		case 0xe:
+			if ((opcode & 0xff) == 0x9e) return {OP_PTR(press), 0, (opcode >> 8) & 0xf, 0};
+			if ((opcode & 0xff) == 0xa1) return {OP_PTR(release), 0, (opcode >> 8) & 0xf, 0};
+			break;
+		case 0xf:
+			switch (opcode & 0xff)
+			{
+				case 0x07:
+					return {OP_PTR(getdel), 0, (opcode >> 8) & 0xf, 0};
+				case 0x0a:
+					return {OP_PTR(wait), 0, (opcode >> 8) & 0xf, 0};
+				case 0x15:
+					return {OP_PTR(setdel), 0, (opcode >> 8) & 0xf, 0};
+				case 0x18:
+					return {OP_PTR(setsnd), 0, (opcode >> 8) & 0xf, 0};
+				case 0x1e:
+					return {OP_PTR(inc), 0, (opcode >> 8) & 0xf, 0};
+				case 0x29:
+					return {OP_PTR(font), 0, (opcode >> 8) & 0xf, 0};
+				case 0x33:
+					return {OP_PTR(deci), 0, (opcode >> 8) & 0xf, 0};
+				case 0x55:
+					return {OP_PTR(dump), 0, (opcode >> 8) & 0xf, 0};
+				case 0x65:
+					return {OP_PTR(load), 0, (opcode >> 8) & 0xf, 0};
+			}
+			break;
 	}
 
+	// TODO log a fault or something?
 	return {nullptr, 0, 0, 0};
 }
 
