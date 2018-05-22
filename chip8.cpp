@@ -9,6 +9,8 @@ uint8_t Chip8::rng()
 Chip8::Chip8() : random_generator(std::random_device()()), uniform_distribution(0, 0xff)
 {
 	stack.reserve(stack_size);
+
+	// TODO store font in 0x050-0x0A0
 }
 
 uint16_t Chip8::get_program_counter() const
@@ -29,6 +31,11 @@ uint8_t Chip8::get_register(uint16_t x) const
 uint8_t Chip8::get_memory(uint16_t n) const
 {
 	return memory.at(n);
+}
+
+uint8_t Chip8::get_pixel(uint8_t x, uint8_t y) const
+{
+	return screen.at(x + y * screen_width);
 }
 
 bool Chip8::beep() const
@@ -157,7 +164,7 @@ std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint1
 
 CHIP8_OP(clear)
 {
-	// TODO
+	screen.fill(0);
 }
 
 CHIP8_OP(ret)

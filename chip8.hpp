@@ -15,6 +15,9 @@ public:
 
 	constexpr static uint16_t program_mem_start = 0x200;
 
+	constexpr static unsigned int screen_width = 64;
+	constexpr static unsigned int screen_height = 32;
+
 	typedef void (Chip8::*opfn_t)(uint16_t, uint8_t, uint8_t);
 
 private:
@@ -28,6 +31,11 @@ private:
 	uint8_t delay_timer = 0;
 	uint8_t sound_timer = 0;
 
+	// I/O
+	std::array<uint8_t, screen_width * screen_height> screen {};
+	std::array<uint8_t, registers_size> keys {};
+
+	// randomness
 	std::default_random_engine random_generator;
 	std::uniform_int_distribution<uint8_t> uniform_distribution;
 
@@ -40,6 +48,7 @@ public:
 	uint16_t get_address_register() const;
 	uint8_t get_register(uint16_t) const;
 	uint8_t get_memory(uint16_t) const;
+	uint8_t get_pixel(uint8_t x, uint8_t y) const;
 	bool beep() const;
 
 	void step();

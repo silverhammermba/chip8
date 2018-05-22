@@ -84,7 +84,19 @@ TEST_CASE("Invalid opcodes decode to null", "[chip8]")
 
 TEST_CASE("Op clear 00E0", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.op_font(0, 0, 0);
+	chip8.op_disp(0, 0, 0);
+
+	chip8.op_clear(0, 0, 0);
+	for (uint8_t x = 0; x < Chip8::screen_width; ++x)
+	{
+		for (uint8_t y = 0; y < Chip8::screen_height; ++y)
+		{
+			REQUIRE(chip8.get_pixel(x, y) == 0);
+		}
+	}
 }
 
 TEST_CASE("Op ret 00EE", "[chip8]")
