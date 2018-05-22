@@ -1,19 +1,7 @@
 #include <cstdlib>
 #include <iostream>
-#include <string>
+#include <SDL2/SDL.h>
 #include "chip8.hpp"
-
-void draw_screen(const Chip8& emu)
-{
-	for (uint8_t y = 0; y < Chip8::screen_height; ++y)
-	{
-		for (uint8_t x = 0; x < Chip8::screen_width; ++x)
-		{
-			std::cout << (emu.get_pixel(x, y) ? '#' : ' ');
-		}
-		std::cout << std::endl;
-	}
-}
 
 int main(int argc, char** argv)
 {
@@ -24,19 +12,29 @@ int main(int argc, char** argv)
 	}
 
 	Chip8 chip8;
-
 	chip8.load_rom(argv[1]);
 
-	std::string ignored;
-
-	while (true)
+	if (SDL_Init(SDL_INIT_VIDEO))
 	{
-		chip8.step();
-		if (chip8.should_draw())
-		{
-			draw_screen(chip8);
-			std::getline(std::cin, ignored);
-		}
+		std::cerr << "SDL_Init: " << SDL_GetError() << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	SDL_Window* window = SDL_CreateWindow("CHIP8", 100, 100, Chip8::screen_width, Chip8::screen_height, SDL_WINDOW_SHOWN);
+
+	if (!window)
+	{
+		std::cerr << "SDL_CreateWindow: " << SDL_GetError() << std::endl;
+		SDL_Quit();
+		return EXIT_FAILURE;
+	}
+
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (!renderer)
+	{
+		std::cerr << "SDL_CreateRenderer: " << SDL_GetError() << std::endl;
+		SDL_Quit();
+		return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;
