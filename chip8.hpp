@@ -54,6 +54,15 @@ public:
 	// setup
 	Chip8();
 	void load_rom(const std::string&);
+	template<size_t SIZE>
+	void load_bytes(const std::array<uint8_t, SIZE>& bytes)
+	{
+		reset();
+		for (uint16_t i = 0, m = program_mem_start; i < bytes.size() && m < memory_size; ++i, ++m)
+		{
+			memory[m] = bytes[i];
+		}
+	}
 
 	// read state
 	uint16_t get_program_counter() const;
