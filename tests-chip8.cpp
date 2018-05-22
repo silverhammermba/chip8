@@ -645,5 +645,27 @@ TEST_CASE("Op dump FX55", "[chip8]")
 
 TEST_CASE("Op load FX65", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	// dump 0,2,4,... starting at 0xbad
+	chip8.op_save(0xbad, 0, 0);
+	for (uint8_t i = 0; i < Chip8::registers_size; ++i) chip8.op_store(i * 2, i, 0);
+	chip8.op_dump(0, Chip8::registers_size - 1, 0);
+	// reset address to 0xbad and clear registers
+	chip8.op_save(0xbad, 0, 0);
+	for (uint8_t i = 0; i < Chip8::registers_size; ++i) chip8.op_store(0, i, 0);
+
+	SECTION("load nothing")
+	{
+		chip8.op_load(0, 0, 0);
+		REQUIRE(chip8.get_register(0) == 0);
+		REQUIRE(chip8.get_address_register() == 0xbae);
+	}
+
+	SECTION("load all")
+	{
+		chip8.op_load(0, Chip8::registers_size - 1, 0);
+
+		for (uint8_t i = 0; i < Chip8::registers_size; ++i) REQUIRE(chip8.get_register(i) == i * 2);
+	}
 }

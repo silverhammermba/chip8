@@ -332,6 +332,7 @@ CHIP8_OP_X(dump)
 	for (uint8_t i = 0; i <= x; ++i) memory[address_register++] = data_registers[i];
 }
 
-CHIP8_OP(load)
+CHIP8_OP_X(load)
 {
+	for (uint8_t i = 0; i <= x; ++i) data_registers[i] = memory[address_register++];
 }
