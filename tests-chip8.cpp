@@ -550,6 +550,9 @@ TEST_CASE("Op inc FX1E", "[chip8]")
 	chip8.op_store(3, 0xe, 0);
 	chip8.op_inc(0, 0xe, 0);
 	REQUIRE(chip8.get_address_register() == start + 3);
+
+	chip8.op_inc(0, 0xd, 0);
+	REQUIRE(chip8.get_address_register() == start + 3);
 }
 
 TEST_CASE("Op font FX29", "[chip8]")
@@ -559,7 +562,43 @@ TEST_CASE("Op font FX29", "[chip8]")
 
 TEST_CASE("Op deci FX33", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+	chip8.op_save(0x980, 0, 0);
+
+	SECTION("decimal-code 0")
+	{
+		chip8.op_deci(0, 0, 0);
+		REQUIRE(chip8.get_memory(0x980) == 0);
+		REQUIRE(chip8.get_memory(0x981) == 0);
+		REQUIRE(chip8.get_memory(0x982) == 0);
+	}
+
+	SECTION("decimal-code 7")
+	{
+		chip8.op_store(7, 1, 0);
+		chip8.op_deci(0, 1, 0);
+		REQUIRE(chip8.get_memory(0x980) == 0);
+		REQUIRE(chip8.get_memory(0x981) == 0);
+		REQUIRE(chip8.get_memory(0x982) == 7);
+	}
+
+	SECTION("decimal-code 89")
+	{
+		chip8.op_store(89, 1, 0);
+		chip8.op_deci(0, 1, 0);
+		REQUIRE(chip8.get_memory(0x980) == 0);
+		REQUIRE(chip8.get_memory(0x981) == 8);
+		REQUIRE(chip8.get_memory(0x982) == 9);
+	}
+
+	SECTION("decimal-code 255")
+	{
+		chip8.op_store(255, 1, 0);
+		chip8.op_deci(0, 1, 0);
+		REQUIRE(chip8.get_memory(0x980) == 2);
+		REQUIRE(chip8.get_memory(0x981) == 5);
+		REQUIRE(chip8.get_memory(0x982) == 5);
+	}
 }
 
 TEST_CASE("Op dump FX55", "[chip8]")

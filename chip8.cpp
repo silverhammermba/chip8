@@ -26,6 +26,11 @@ uint8_t Chip8::get_register(uint16_t x) const
 	return data_registers.at(x);
 }
 
+uint8_t Chip8::get_memory(uint16_t n) const
+{
+	return memory.at(n);
+}
+
 bool Chip8::beep() const
 {
 	return sound_timer > 0;
@@ -312,8 +317,13 @@ CHIP8_OP(font)
 {
 }
 
-CHIP8_OP(deci)
+CHIP8_OP_X(deci)
 {
+	uint8_t num = data_registers[x];
+
+	memory[address_register + 0] = num / 100;
+	memory[address_register + 1] = (num % 100) / 10;
+	memory[address_register + 2] = num % 10;
 }
 
 CHIP8_OP(dump)
