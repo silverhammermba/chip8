@@ -681,7 +681,14 @@ TEST_CASE("Op inc FX1E", "[chip8]")
 
 TEST_CASE("Op font FX29", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.op_font(0, 0, 0);
+	REQUIRE(chip8.get_address_register() == 0x50);
+
+	chip8.op_store(0xe, 1, 0);
+	chip8.op_font(0, 1, 0);
+	REQUIRE(chip8.get_address_register() == 0x50 + 0xe * 5);
 }
 
 TEST_CASE("Op deci FX33", "[chip8]")

@@ -48,6 +48,7 @@ bool Chip8::get_pixel(uint8_t x, uint8_t y) const
 
 bool Chip8::beep() const
 {
+	// TODO does this beep continuously when it's positive, or only once when it hits 0?
 	return sound_timer > 0;
 }
 
@@ -363,8 +364,10 @@ CHIP8_OP_X(inc)
 	address_register += data_registers[x];
 }
 
-CHIP8_OP(font)
+CHIP8_OP_X(font)
 {
+	// TODO can only find this documented for x=0x0-0xf. what about others?
+	address_register = 0x50 + data_registers[x] * 5;
 }
 
 CHIP8_OP_X(deci)
