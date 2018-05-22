@@ -360,8 +360,8 @@ CHIP8_OP_X(setsnd)
 
 CHIP8_OP_X(inc)
 {
-	// TODO add undocumented carry set
-	address_register += data_registers[x];
+	data_registers[0xf] = address_register >= memory_size - data_registers[x];
+	address_register = (address_register + data_registers[x]) % memory_size;
 }
 
 CHIP8_OP_X(font)

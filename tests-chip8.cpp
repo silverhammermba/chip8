@@ -669,14 +669,36 @@ TEST_CASE("Op inc FX1E", "[chip8]")
 {
 	Chip8 chip8;
 
-	uint16_t start = chip8.get_address_register();
+	SECTION("incrementing normally")
+	{
+		uint16_t start = chip8.get_address_register();
 
-	chip8.op_store(3, 0xe, 0);
-	chip8.op_inc(0, 0xe, 0);
-	REQUIRE(chip8.get_address_register() == start + 3);
+		chip8.op_store(3, 0xe, 0);
+		chip8.op_inc(0, 0xe, 0);
+		REQUIRE(chip8.get_address_register() == start + 3);
+		REQUIRE(chip8.get_register(0xf) == 0);
 
-	chip8.op_inc(0, 0xd, 0);
-	REQUIRE(chip8.get_address_register() == start + 3);
+		chip8.op_inc(0, 0xd, 0);
+		REQUIRE(chip8.get_address_register() == start + 3);
+		REQUIRE(chip8.get_register(0xf) == 0);
+	}
+
+	SECTION("incrementing with overflow")
+	{
+		chip8.op_save(Chip8::memory_size - 2, 0, 0);
+
+		chip8.op_store(1, 0xd, 0);
+		chip8.op_inc(0, 0xd, 0);
+
+		REQUIRE(chip8.get_address_register() == Chip8::memory_size - 1);
+		REQUIRE(chip8.get_register(0xf) == 0);
+
+		chip8.op_store(3, 0xe, 0);
+		chip8.op_inc(0, 0xe, 0);
+
+		REQUIRE(chip8.get_address_register() == 2);
+		REQUIRE(chip8.get_register(0xf) == 1);
+	}
 }
 
 TEST_CASE("Op font FX29", "[chip8]")
