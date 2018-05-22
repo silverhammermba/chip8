@@ -94,7 +94,7 @@ TEST_CASE("Op clear 00E0", "[chip8]")
 	{
 		for (uint8_t y = 0; y < Chip8::screen_height; ++y)
 		{
-			REQUIRE(chip8.get_pixel(x, y) == 0);
+			REQUIRE(chip8.get_pixel(x, y) == false);
 		}
 	}
 }
@@ -510,17 +510,78 @@ TEST_CASE("Op rand CXNN", "[chip8]")
 
 TEST_CASE("Op disp DXYN", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	// write 0xff to 0x200 in memory
+	chip8.op_store(0xff, 0, 0);
+	chip8.op_save(0x200, 0, 0);
+	chip8.op_dump(0, 0, 0);
+	chip8.op_save(0x200, 0, 0);
+
+	chip8.op_disp(1, 10, 12);
+
+	// ensure that that line of pixels is set
+	for (uint8_t x = 0; x < Chip8::screen_width; ++x)
+	{
+		for (uint8_t y = 0; y < Chip8::screen_height; ++y)
+		{
+			REQUIRE(chip8.get_pixel(x, y) == (y == 12 && (x >= 10 && x < 18)));
+		}
+	}
+	// and no carry
+	REQUIRE(chip8.get_register(0xf) == 0);
+
+	// still no carry for non-overlapping sprite
+	chip8.op_disp(1, 10, 13);
+	REQUIRE(chip8.get_register(0xf) == 0);
+
+	// overlapping write should clear it and set carry
+	chip8.op_disp(1, 10, 12);
+	for (uint8_t x = 0; x < Chip8::screen_width; ++x)
+	{
+		REQUIRE(chip8.get_pixel(x, 12) == false);
+	}
+	REQUIRE(chip8.get_register(0xf) == 1);
 }
 
 TEST_CASE("Op press EX9E", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.press(0xa);
+	chip8.op_store(0xa, 1, 0);
+
+	SECTION("when pressed")
+	{
+		chip8.op_press(0, 1, 0);
+		REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start + 2);
+		chip8.op_press(0, 1, 0);
+		REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start + 4);
+		chip8.release(0xa);
+		chip8.op_press(0, 1, 0);
+		REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start + 4);
+	}
+	SECTION("when not pressed")
+	{
+		chip8.op_press(0, 2, 0);
+		REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start);
+	}
 }
 
 TEST_CASE("Op release EXA1", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.press(0xa);
+	chip8.op_store(0xa, 1, 0);
+
+	chip8.op_release(0, 2, 0);
+	REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start + 2);
+	chip8.op_release(0, 2, 0);
+	REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start + 4);
+	chip8.press(0);
+	chip8.op_release(0, 2, 0);
+	REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start + 4);
 }
 
 TEST_CASE("Op getdel/setdel FX07/FX15", "[chip8]")

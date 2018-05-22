@@ -32,14 +32,16 @@ private:
 	uint8_t sound_timer = 0;
 
 	// I/O
-	std::array<uint8_t, screen_width * screen_height> screen {};
-	std::array<uint8_t, registers_size> keys {};
+	std::array<bool, screen_width * screen_height> screen {};
+	std::array<bool, registers_size> keys {};
 
 	// randomness
 	std::default_random_engine random_generator;
 	std::uniform_int_distribution<uint8_t> uniform_distribution;
 
 	uint8_t rng();
+
+	bool set_pixel(uint8_t, uint8_t, bool);
 
 public:
 	Chip8();
@@ -48,9 +50,11 @@ public:
 	uint16_t get_address_register() const;
 	uint8_t get_register(uint16_t) const;
 	uint8_t get_memory(uint16_t) const;
-	uint8_t get_pixel(uint8_t x, uint8_t y) const;
+	bool get_pixel(uint8_t, uint8_t) const;
 	bool beep() const;
 
+	void press(uint8_t);
+	void release(uint8_t);
 	void step();
 
 	// get an opcode from a position in memory

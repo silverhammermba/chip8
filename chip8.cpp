@@ -5,6 +5,14 @@ uint8_t Chip8::rng()
 	return uniform_distribution(random_generator);
 }
 
+// XOR pixel x,y with set, return true if it was turned off
+bool Chip8::set_pixel(uint8_t x, uint8_t y, bool set)
+{
+	bool prev = get_pixel(x, y);
+	screen.at(x + y * screen_width) = prev ^ set;
+	return prev && !get_pixel(x, y);
+}
+
 // TODO seed RNG somehow?
 Chip8::Chip8() : random_generator(std::random_device()()), uniform_distribution(0, 0xff)
 {
@@ -33,7 +41,7 @@ uint8_t Chip8::get_memory(uint16_t n) const
 	return memory.at(n);
 }
 
-uint8_t Chip8::get_pixel(uint8_t x, uint8_t y) const
+bool Chip8::get_pixel(uint8_t x, uint8_t y) const
 {
 	return screen.at(x + y * screen_width);
 }
@@ -41,6 +49,16 @@ uint8_t Chip8::get_pixel(uint8_t x, uint8_t y) const
 bool Chip8::beep() const
 {
 	return sound_timer > 0;
+}
+
+void Chip8::press(uint8_t key)
+{
+	keys.at(key) = true;
+}
+
+void Chip8::release(uint8_t key)
+{
+	keys.at(key) = false;
 }
 
 void Chip8::step()
@@ -284,16 +302,31 @@ CHIP8_OP_XN(rand)
 	data_registers[x] = rng() & n;
 }
 
-CHIP8_OP(disp)
+CHIP8_OP_XYN(disp)
 {
+	uint16_t sprite_address = address_register;
+	data_registers[0xf] = 0;
+
+	for (uint8_t row = y; row < y + n; ++row)
+	{
+		uint8_t sprite_data = memory[sprite_address++];
+
+		for (uint8_t bit = 8; bit --> 0;)
+		{
+			data_registers[0xf] |= set_pixel(x + bit, row, sprite_data & 1);
+			sprite_data >>= 1;
+		}
+	}
 }
 
-CHIP8_OP(press)
+CHIP8_OP_X(press)
 {
+	if (keys[data_registers[x]]) program_counter += 2;
 }
 
-CHIP8_OP(release)
+CHIP8_OP_X(release)
 {
+	if (!keys[data_registers[x]]) program_counter += 2;
 }
 
 CHIP8_OP_X(getdel)
