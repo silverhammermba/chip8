@@ -593,12 +593,47 @@ TEST_CASE("Op getdel/setdel FX07/FX15", "[chip8]")
 	chip8.op_getdel(0, 9, 0);
 	REQUIRE(chip8.get_register(9) == 20);
 
-	// TODO add section that actually steps?
+	// set current instruction to 0x1200 (a noop)
+	chip8.op_save(chip8.get_program_counter(), 0, 0);
+	chip8.op_store(0x12, 0, 0);
+	chip8.op_store(0x00, 1, 0);
+	chip8.op_dump(0, 1, 0);
+
+	// step 19 times, should be at 1
+	for (int i = 0; i < 19; ++i) chip8.step();
+	chip8.op_getdel(0, 4, 0);
+	REQUIRE(chip8.get_register(4) == 1);
+
+	// then 0
+	chip8.step();
+	chip8.op_getdel(0, 4, 0);
+	REQUIRE(chip8.get_register(4) == 0);
+
+	// then stay at 0
+	chip8.step();
+	chip8.op_getdel(0, 4, 0);
+	REQUIRE(chip8.get_register(4) == 0);
 }
 
 TEST_CASE("Op wait FX0A", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	// set current instruction to 0x1BED (goto 0xBED)
+	chip8.op_save(chip8.get_program_counter(), 0, 0);
+	chip8.op_store(0x1b, 0, 0);
+	chip8.op_store(0xed, 1, 0);
+	chip8.op_dump(0, 1, 0);
+
+	chip8.op_wait(0, 4, 0);
+
+	chip8.step(); // should do nothing
+	REQUIRE(chip8.get_program_counter() == Chip8::program_mem_start);
+
+	chip8.press(0xa);
+	REQUIRE(chip8.get_register(4) == 0xa);
+	chip8.step();
+	REQUIRE(chip8.get_program_counter() == 0xbed);
 }
 
 TEST_CASE("Op setsnd FX18", "[chip8]")
@@ -607,11 +642,27 @@ TEST_CASE("Op setsnd FX18", "[chip8]")
 
 	REQUIRE(chip8.beep() == false);
 
-	chip8.op_store(3, 9, 0);
+	chip8.op_store(10, 9, 0);
 	chip8.op_setsnd(0, 9, 0);
 	REQUIRE(chip8.beep() == true);
 
-	// TODO add section the actually steps?
+	// set current instruction to 0x1200 (a noop)
+	chip8.op_save(chip8.get_program_counter(), 0, 0);
+	chip8.op_store(0x12, 0, 0);
+	chip8.op_store(0x00, 1, 0);
+	chip8.op_dump(0, 1, 0);
+
+	// step 9 times, should be at last step
+	for (int i = 0; i < 9; ++i) chip8.step();
+	REQUIRE(chip8.beep() == true);
+
+	// no more beep
+	chip8.step();
+	REQUIRE(chip8.beep() == false);
+
+	// still no beep
+	chip8.step();
+	REQUIRE(chip8.beep() == false);
 }
 
 TEST_CASE("Op inc FX1E", "[chip8]")

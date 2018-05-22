@@ -35,6 +35,9 @@ private:
 	std::array<bool, screen_width * screen_height> screen {};
 	std::array<bool, registers_size> keys {};
 
+	bool waiting_for_input = false;
+	uint8_t input_register = 0;
+
 	// randomness
 	std::default_random_engine random_generator;
 	std::uniform_int_distribution<uint8_t> uniform_distribution;

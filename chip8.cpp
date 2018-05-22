@@ -53,6 +53,11 @@ bool Chip8::beep() const
 
 void Chip8::press(uint8_t key)
 {
+	if (!keys.at(key) && waiting_for_input)
+	{
+		waiting_for_input = false;
+		data_registers[input_register] = key;
+	}
 	keys.at(key) = true;
 }
 
@@ -63,6 +68,8 @@ void Chip8::release(uint8_t key)
 
 void Chip8::step()
 {
+	if (waiting_for_input) return;
+
 	if (delay_timer > 0) --delay_timer;
 	if (sound_timer > 0) --sound_timer;
 
@@ -334,8 +341,10 @@ CHIP8_OP_X(getdel)
 	data_registers[x] = delay_timer;
 }
 
-CHIP8_OP(wait)
+CHIP8_OP_X(wait)
 {
+	waiting_for_input = true;
+	input_register = x;
 }
 
 CHIP8_OP_X(setdel)
