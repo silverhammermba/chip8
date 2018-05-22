@@ -36,6 +36,7 @@ void Chip8::reset()
 	keys.fill(false);
 
 	waiting_for_input = false;
+	screen_dirty = true;
 
 	// 0
 	memory[0x50] = 0b01100000;
@@ -188,6 +189,13 @@ void Chip8::release(uint8_t key)
 	keys.at(key) = false;
 }
 
+bool Chip8::should_draw()
+{
+	bool tmp = screen_dirty;
+	screen_dirty = false;
+	return tmp;
+}
+
 void Chip8::step()
 {
 	if (waiting_for_input) return;
@@ -312,6 +320,7 @@ std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint1
 CHIP8_OP(clear)
 {
 	screen.fill(0);
+	screen_dirty = true;
 }
 
 CHIP8_OP(ret)
@@ -446,6 +455,7 @@ CHIP8_OP_XYN(disp)
 			sprite_data >>= 1;
 		}
 	}
+	screen_dirty = true;
 }
 
 CHIP8_OP_X(press)

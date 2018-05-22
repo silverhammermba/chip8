@@ -39,6 +39,8 @@ private:
 	bool waiting_for_input = false;
 	uint8_t input_register = 0;
 
+	bool screen_dirty = true;
+
 	// randomness
 	std::default_random_engine random_generator;
 	std::uniform_int_distribution<uint8_t> uniform_distribution;
@@ -61,9 +63,11 @@ public:
 	bool get_pixel(uint8_t, uint8_t) const;
 	bool beep() const;
 
-	// input
+	// I/O
 	void press(uint8_t);
 	void release(uint8_t);
+
+	bool should_draw();
 
 	// emulate
 	void step();

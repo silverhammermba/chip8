@@ -89,6 +89,8 @@ TEST_CASE("Op clear 00E0", "[chip8]")
 	chip8.op_font(0, 0, 0);
 	chip8.op_disp(0, 0, 0);
 
+	chip8.should_draw();
+
 	chip8.op_clear(0, 0, 0);
 	for (uint8_t x = 0; x < Chip8::screen_width; ++x)
 	{
@@ -97,6 +99,7 @@ TEST_CASE("Op clear 00E0", "[chip8]")
 			REQUIRE(chip8.get_pixel(x, y) == false);
 		}
 	}
+	REQUIRE(chip8.should_draw() == true);
 }
 
 TEST_CASE("Op ret 00EE", "[chip8]")
@@ -518,7 +521,11 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 	chip8.op_dump(0, 0, 0);
 	chip8.op_save(0x200, 0, 0);
 
+	chip8.should_draw();
+
 	chip8.op_disp(1, 10, 12);
+
+	REQUIRE(chip8.should_draw() == true);
 
 	// ensure that that line of pixels is set
 	for (uint8_t x = 0; x < Chip8::screen_width; ++x)
@@ -821,4 +828,12 @@ TEST_CASE("Op load FX65", "[chip8]")
 
 		for (uint8_t i = 0; i < Chip8::registers_size; ++i) REQUIRE(chip8.get_register(i) == i * 2);
 	}
+}
+
+TEST_CASE("Indicates when screen should redraw")
+{
+	Chip8 chip8;
+
+	REQUIRE(chip8.should_draw() == true);
+	REQUIRE(chip8.should_draw() == false);
 }
