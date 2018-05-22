@@ -478,7 +478,7 @@ TEST_CASE("Op rand CXNN", "[chip8]")
 		REQUIRE(failures == 0);
 	}
 
-	SECTION("can output every possible value")
+	SECTION("outputs roughly uniform values")
 	{
 		std::array<unsigned int, 0x100> counts {};
 
@@ -511,9 +511,16 @@ TEST_CASE("Op release EXA1", "[chip8]")
 	// TODO
 }
 
-TEST_CASE("Op getdel FX07", "[chip8]")
+TEST_CASE("Op getdel/setdel FX07/FX15", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	chip8.op_store(20, 8, 0);
+	chip8.op_setdel(0, 8, 0);
+	chip8.op_getdel(0, 9, 0);
+	REQUIRE(chip8.get_register(9) == 20);
+
+	// TODO add section that actually steps?
 }
 
 TEST_CASE("Op wait FX0A", "[chip8]")
@@ -521,19 +528,28 @@ TEST_CASE("Op wait FX0A", "[chip8]")
 	// TODO
 }
 
-TEST_CASE("Op setdel FX15", "[chip8]")
-{
-	// TODO
-}
-
 TEST_CASE("Op setsnd FX18", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	REQUIRE(chip8.beep() == false);
+
+	chip8.op_store(3, 9, 0);
+	chip8.op_setsnd(0, 9, 0);
+	REQUIRE(chip8.beep() == true);
+
+	// TODO add section the actually steps?
 }
 
 TEST_CASE("Op inc FX1E", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+
+	uint16_t start = chip8.get_address_register();
+
+	chip8.op_store(3, 0xe, 0);
+	chip8.op_inc(0, 0xe, 0);
+	REQUIRE(chip8.get_address_register() == start + 3);
 }
 
 TEST_CASE("Op font FX29", "[chip8]")

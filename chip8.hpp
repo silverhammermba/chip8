@@ -39,6 +39,7 @@ public:
 	uint16_t get_program_counter() const;
 	uint16_t get_address_register() const;
 	uint8_t get_register(uint16_t) const;
+	bool beep() const;
 
 	void step();
 

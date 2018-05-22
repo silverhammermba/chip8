@@ -26,16 +26,21 @@ uint8_t Chip8::get_register(uint16_t x) const
 	return data_registers.at(x);
 }
 
+bool Chip8::beep() const
+{
+	return sound_timer > 0;
+}
+
 void Chip8::step()
 {
+	if (delay_timer > 0) --delay_timer;
+	if (sound_timer > 0) --sound_timer;
+
 	uint16_t opcode = get_opcode(memory, program_counter);
 	program_counter += 2; // each opcode is 2 bytes
 
 	auto [op, n, x, y] = decode_opcode(opcode);
 	(this->*op)(n, x, y);
-
-	if (delay_timer > 0) --delay_timer;
-	if (sound_timer > 0) --sound_timer;
 }
 
 uint16_t Chip8::get_opcode(std::array<uint8_t, memory_size>& _memory, uint16_t _counter)
@@ -152,6 +157,7 @@ CHIP8_OP(clear)
 
 CHIP8_OP(ret)
 {
+	// TODO check that stack is not empty, what to do if it is?
 	program_counter = stack.back();
 	stack.pop_back();
 }
@@ -278,24 +284,28 @@ CHIP8_OP(release)
 {
 }
 
-CHIP8_OP(getdel)
+CHIP8_OP_X(getdel)
 {
+	data_registers[x] = delay_timer;
 }
 
 CHIP8_OP(wait)
 {
 }
 
-CHIP8_OP(setdel)
+CHIP8_OP_X(setdel)
 {
+	delay_timer = data_registers[x];
 }
 
-CHIP8_OP(setsnd)
+CHIP8_OP_X(setsnd)
 {
+	sound_timer = data_registers[x];
 }
 
-CHIP8_OP(inc)
+CHIP8_OP_X(inc)
 {
+	address_register += data_registers[x];
 }
 
 CHIP8_OP(font)
