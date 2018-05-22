@@ -603,7 +603,44 @@ TEST_CASE("Op deci FX33", "[chip8]")
 
 TEST_CASE("Op dump FX55", "[chip8]")
 {
-	// TODO
+	Chip8 chip8;
+	chip8.op_save(0xfad, 0, 0);
+
+	SECTION("dump nothing")
+	{
+		chip8.op_dump(0, 0, 0);
+		REQUIRE(chip8.get_memory(0xfad) == 0);
+		REQUIRE(chip8.get_address_register() == 0xfae);
+	}
+
+	SECTION("dump some")
+	{
+		chip8.op_store(12, 0, 0);
+		chip8.op_store(7, 1, 0);
+		chip8.op_store(0xfe, 2, 0);
+		chip8.op_store(0xa, 3, 0);
+		chip8.op_store(2, 4, 0);
+		chip8.op_store(3, 5, 0);
+
+		chip8.op_dump(0, 5, 0);
+		REQUIRE(chip8.get_memory(0xfad) == 12);
+		REQUIRE(chip8.get_memory(0xfae) == 7);
+		REQUIRE(chip8.get_memory(0xfaf) == 0xfe);
+		REQUIRE(chip8.get_memory(0xfb0) == 0xa);
+		REQUIRE(chip8.get_memory(0xfb1) == 2);
+		REQUIRE(chip8.get_memory(0xfb2) == 3);
+		REQUIRE(chip8.get_address_register() == 0xfb3);
+	}
+
+	SECTION("dump all")
+	{
+		for (uint8_t i = 0; i < Chip8::registers_size; ++i) chip8.op_store(i * 2, i, 0);
+
+		chip8.op_dump(0, Chip8::registers_size - 1, 0);
+
+		for (uint8_t i = 0; i < Chip8::registers_size; ++i) REQUIRE(chip8.get_memory(0xfad + i) == i * 2);
+		REQUIRE(chip8.get_address_register() == 0xfad + Chip8::registers_size);
+	}
 }
 
 TEST_CASE("Op load FX65", "[chip8]")

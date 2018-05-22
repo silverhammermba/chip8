@@ -310,6 +310,7 @@ CHIP8_OP_X(setsnd)
 
 CHIP8_OP_X(inc)
 {
+	// TODO add undocumented carry set
 	address_register += data_registers[x];
 }
 
@@ -326,8 +327,9 @@ CHIP8_OP_X(deci)
 	memory[address_register + 2] = num % 10;
 }
 
-CHIP8_OP(dump)
+CHIP8_OP_X(dump)
 {
+	for (uint8_t i = 0; i <= x; ++i) memory[address_register++] = data_registers[i];
 }
 
 CHIP8_OP(load)
