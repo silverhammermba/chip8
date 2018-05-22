@@ -1,3 +1,4 @@
+#include <fstream>
 #include "chip8.hpp"
 
 uint8_t Chip8::rng()
@@ -16,9 +17,129 @@ bool Chip8::set_pixel(uint8_t x, uint8_t y, bool set)
 // TODO seed RNG somehow?
 Chip8::Chip8() : random_generator(std::random_device()()), uniform_distribution(0, 0xff)
 {
+	reset();
+}
+
+void Chip8::reset()
+{
+	memory.fill(0);
+	data_registers.fill(0);
+	program_counter = address_register = program_mem_start;
+
+	stack.clear();
 	stack.reserve(stack_size);
 
-	// TODO store font in 0x050-0x0A0
+	delay_timer = 0;
+	sound_timer = 0;
+
+	screen.fill(false);
+	keys.fill(false);
+
+	waiting_for_input = false;
+
+	// 0
+	memory[0x50] = 0b01100000;
+	memory[0x51] = 0b10010000;
+	memory[0x52] = 0b10010000;
+	memory[0x53] = 0b10010000;
+	memory[0x54] = 0b01100000;
+	// 1
+	memory[0x55] = 0b00100000;
+	memory[0x56] = 0b01100000;
+	memory[0x57] = 0b00100000;
+	memory[0x58] = 0b00100000;
+	memory[0x59] = 0b01110000;
+	// 2
+	memory[0x5a] = 0b11100000;
+	memory[0x5b] = 0b00010000;
+	memory[0x5c] = 0b01100000;
+	memory[0x5d] = 0b10000000;
+	memory[0x5e] = 0b11110000;
+	// 3
+	memory[0x5f] = 0b11100000;
+	memory[0x60] = 0b00010000;
+	memory[0x61] = 0b01100000;
+	memory[0x62] = 0b00010000;
+	memory[0x63] = 0b11100000;
+	// 4
+	memory[0x64] = 0b10100000;
+	memory[0x65] = 0b10100000;
+	memory[0x66] = 0b11110000;
+	memory[0x67] = 0b00100000;
+	memory[0x68] = 0b00100000;
+	// 5
+	memory[0x69] = 0b11110000;
+	memory[0x6a] = 0b10000000;
+	memory[0x6b] = 0b11100000;
+	memory[0x6c] = 0b00010000;
+	memory[0x6d] = 0b11100000;
+	// 6
+	memory[0x6e] = 0b01110000;
+	memory[0x6f] = 0b10000000;
+	memory[0x70] = 0b11100000;
+	memory[0x71] = 0b10010000;
+	memory[0x72] = 0b11100000;
+	// 7
+	memory[0x73] = 0b11110000;
+	memory[0x74] = 0b00010000;
+	memory[0x75] = 0b00100000;
+	memory[0x76] = 0b01000000;
+	memory[0x77] = 0b01000000;
+	// 8
+	memory[0x78] = 0b01100000;
+	memory[0x79] = 0b10010000;
+	memory[0x7a] = 0b01100000;
+	memory[0x7b] = 0b10010000;
+	memory[0x7c] = 0b01100000;
+	// 9
+	memory[0x7d] = 0b01100000;
+	memory[0x7e] = 0b10010000;
+	memory[0x7f] = 0b01110000;
+	memory[0x80] = 0b00010000;
+	memory[0x81] = 0b11100000;
+	// A
+	memory[0x82] = 0b01100000;
+	memory[0x83] = 0b10010000;
+	memory[0x84] = 0b11110000;
+	memory[0x85] = 0b10010000;
+	memory[0x86] = 0b10010000;
+	// B
+	memory[0x87] = 0b11100000;
+	memory[0x88] = 0b10010000;
+	memory[0x89] = 0b11100000;
+	memory[0x8a] = 0b10010000;
+	memory[0x8b] = 0b11100000;
+	// C
+	memory[0x8c] = 0b01110000;
+	memory[0x8d] = 0b10000000;
+	memory[0x8e] = 0b10000000;
+	memory[0x8f] = 0b10000000;
+	memory[0x90] = 0b01110000;
+	// D
+	memory[0x91] = 0b11100000;
+	memory[0x92] = 0b10010000;
+	memory[0x93] = 0b10010000;
+	memory[0x94] = 0b10010000;
+	memory[0x95] = 0b11100000;
+	// E
+	memory[0x96] = 0b11110000;
+	memory[0x97] = 0b10000000;
+	memory[0x98] = 0b11100000;
+	memory[0x99] = 0b10000000;
+	memory[0x9a] = 0b11110000;
+	// F
+	memory[0x9b] = 0b11110000;
+	memory[0x9c] = 0b10000000;
+	memory[0x9d] = 0b11100000;
+	memory[0x9e] = 0b10000000;
+	memory[0x9f] = 0b10000000;
+}
+
+void Chip8::load_rom(const std::string& filename)
+{
+	reset();
+	std::ifstream romfile(filename);
+	romfile.read(reinterpret_cast<char*>(memory.data()) + program_mem_start, memory_size - program_mem_start);
 }
 
 uint16_t Chip8::get_program_counter() const

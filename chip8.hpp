@@ -1,6 +1,7 @@
 #include <array>
 #include <cstdint>
 #include <random>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -46,9 +47,13 @@ private:
 
 	bool set_pixel(uint8_t, uint8_t, bool);
 
+	void reset();
 public:
+	// setup
 	Chip8();
+	void load_rom(const std::string&);
 
+	// read state
 	uint16_t get_program_counter() const;
 	uint16_t get_address_register() const;
 	uint8_t get_register(uint16_t) const;
@@ -56,8 +61,11 @@ public:
 	bool get_pixel(uint8_t, uint8_t) const;
 	bool beep() const;
 
+	// input
 	void press(uint8_t);
 	void release(uint8_t);
+
+	// emulate
 	void step();
 
 	// get an opcode from a position in memory
