@@ -532,6 +532,14 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 		REQUIRE(chip8.should_draw() == false);
 	}
 
+	SECTION("drawing past the edge")
+	{
+		chip8.op_store(Chip8::screen_width, 2, 0);
+		chip8.op_store(Chip8::screen_height, 5, 0);
+
+		chip8.op_disp(1, 2, 5);
+	}
+
 	SECTION("drawing and overdrawing")
 	{
 		chip8.op_store(10, 2, 0);
