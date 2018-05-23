@@ -328,7 +328,9 @@ CHIP8_OP(clear)
 
 CHIP8_OP(ret)
 {
-	// TODO check that stack is not empty, what to do if it is?
+	// TODO log a fault or something?
+	if (stack.empty()) return;
+
 	program_counter = stack.back();
 	stack.pop_back();
 }
