@@ -515,15 +515,14 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 {
 	Chip8 chip8;
 
-	// write 0xff to 0x200 in memory
-	chip8.op_store(0xff, 0, 0);
-	chip8.op_save(0x200, 0, 0);
-	chip8.op_dump(0, 0, 0);
-	chip8.op_save(0x200, 0, 0);
+	chip8.load_bytes(std::array<uint8_t, 1>{0xff});
 
 	chip8.should_draw();
 
-	chip8.op_disp(1, 10, 12);
+	chip8.op_store(10, 2, 0);
+	chip8.op_store(12, 5, 0);
+
+	chip8.op_disp(1, 2, 5);
 
 	REQUIRE(chip8.should_draw() == true);
 
@@ -539,11 +538,13 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 	REQUIRE(chip8.get_register(0xf) == 0);
 
 	// still no carry for non-overlapping sprite
-	chip8.op_disp(1, 10, 13);
+	chip8.op_add(1, 5, 0);
+	chip8.op_disp(1, 2, 5);
 	REQUIRE(chip8.get_register(0xf) == 0);
 
 	// overlapping write should clear it and set carry
-	chip8.op_disp(1, 10, 12);
+	chip8.op_add(255, 5, 0);
+	chip8.op_disp(1, 2, 5);
 	for (uint8_t x = 0; x < Chip8::screen_width; ++x)
 	{
 		REQUIRE(chip8.get_pixel(x, 12) == false);
