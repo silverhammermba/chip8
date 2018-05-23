@@ -6,7 +6,6 @@ LDFLAGS += -lstdc++ $(shell pkg-config --libs sdl2)
 default: main
 
 main: main.o chip8.o
-	$(CXX) $+ -o $@
 
 tests: $(TESTS:.cpp=.o) chip8.o
 	$(CXX) $+ -o $@
