@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 			pixel.h = scale;
 
 			// draw each pixel
-			for (uint8_t x = 0; x < Chip8::screen_height; ++x)
+			for (uint8_t x = 0; x < Chip8::screen_width; ++x)
 			{
 				for (uint8_t y = 0; y < Chip8::screen_height; ++y)
 				{
