@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <unordered_map>
 #include <SDL2/SDL.h>
 #include "chip8.hpp"
 
@@ -39,11 +40,47 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	// draw for 5 seconds
-	int frames = 60 * 5;
+	bool running = true;
 
-	while (true)
+	std::unordered_map<SDL_Scancode, uint8_t> keymap = {
+		{SDL_SCANCODE_1, 0x1}, {SDL_SCANCODE_2, 0x2}, {SDL_SCANCODE_3, 0x3}, {SDL_SCANCODE_4, 0xc},
+		{SDL_SCANCODE_Q, 0x4}, {SDL_SCANCODE_W, 0x5}, {SDL_SCANCODE_E, 0x6}, {SDL_SCANCODE_R, 0xd},
+		{SDL_SCANCODE_A, 0x7}, {SDL_SCANCODE_S, 0x8}, {SDL_SCANCODE_D, 0x9}, {SDL_SCANCODE_F, 0xe},
+		{SDL_SCANCODE_Z, 0xa}, {SDL_SCANCODE_X, 0x0}, {SDL_SCANCODE_C, 0xb}, {SDL_SCANCODE_V, 0xf},
+	};
+
+	while (running)
 	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+				case SDL_WINDOWEVENT:
+					if (event.window.event == SDL_WINDOWEVENT_CLOSE) running = false;
+					break;
+				case SDL_KEYDOWN:
+				case SDL_KEYUP:
+				{
+					SDL_Scancode code = event.key.keysym.scancode;
+					if (code == SDL_SCANCODE_ESCAPE)
+					{
+						running = false;
+						break;
+					}
+
+					if (keymap.count(code))
+					{
+						if (event.type == SDL_KEYDOWN)
+							chip8.press(keymap.at(code));
+						else
+							chip8.release(keymap.at(code));
+					}
+					break;
+				}
+			}
+		}
+
 		chip8.step();
 
 		if (chip8.should_draw())
@@ -75,8 +112,6 @@ int main(int argc, char** argv)
 
 		SDL_RenderPresent(renderer);
 		SDL_Delay(16);
-
-		if (--frames < 0) break;
 	}
 
 	SDL_DestroyRenderer(renderer);
