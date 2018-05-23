@@ -9,8 +9,8 @@ uint8_t Chip8::rng()
 // XOR pixel x,y with set, return true if it was turned off
 bool Chip8::set_pixel(uint8_t x, uint8_t y, bool set)
 {
-	// ignore pixels past the edge
-	if (x >= screen_width || y >= screen_height) return false;
+	x %= screen_width;
+	y %= screen_height;
 
 	bool prev = get_pixel(x, y);
 	screen.at(x + y * screen_width) = prev ^ set;

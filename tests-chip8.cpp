@@ -532,12 +532,21 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 		REQUIRE(chip8.should_draw() == false);
 	}
 
-	SECTION("drawing past the edge")
+	SECTION("wraparound")
 	{
-		chip8.op_store(Chip8::screen_width, 2, 0);
-		chip8.op_store(Chip8::screen_height, 5, 0);
+		chip8.op_store(Chip8::screen_width - 2, 2, 0);
+		chip8.op_store(12, 5, 0);
 
 		chip8.op_disp(1, 2, 5);
+
+		REQUIRE(chip8.should_draw() == true);
+		REQUIRE(chip8.get_register(0xf) == 0);
+
+		REQUIRE(chip8.get_pixel(Chip8::screen_width - 2, 12) == true);
+		REQUIRE(chip8.get_pixel(Chip8::screen_width - 1, 12) == true);
+		REQUIRE(chip8.get_pixel(0, 12) == true);
+		REQUIRE(chip8.get_pixel(1, 12) == true);
+		REQUIRE(chip8.get_pixel(2, 12) == true);
 	}
 
 	SECTION("drawing and overdrawing")
