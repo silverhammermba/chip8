@@ -366,15 +366,13 @@ TEST_CASE("Op shiftr 8XY6", "[chip8]")
 {
 	Chip8 chip8;
 
-	chip8.op_shiftr(0, 2, 1);
+	chip8.op_shiftr(0, 2, 0);
 	REQUIRE(chip8.get_register(2) == 0);
-	REQUIRE(chip8.get_register(1) == 0);
 	REQUIRE(chip8.get_register(0xf) == 0);
 
-	chip8.op_store(0x1f, 1, 0);
-	chip8.op_shiftr(0, 2, 1);
+	chip8.op_store(0x1f, 2, 0);
+	chip8.op_shiftr(0, 2, 0);
 	REQUIRE(chip8.get_register(2) == 0xf);
-	REQUIRE(chip8.get_register(1) == 0x1f);
 	REQUIRE(chip8.get_register(0xf) == 1);
 }
 
@@ -419,15 +417,13 @@ TEST_CASE("Op shiftl 8XYE", "[chip8]")
 {
 	Chip8 chip8;
 
-	chip8.op_shiftl(0, 2, 1);
+	chip8.op_shiftl(0, 2, 0);
 	REQUIRE(chip8.get_register(2) == 0);
-	REQUIRE(chip8.get_register(1) == 0);
 	REQUIRE(chip8.get_register(0xf) == 0);
 
-	chip8.op_store(0x88, 1, 0);
-	chip8.op_shiftl(0, 2, 1);
+	chip8.op_store(0x88, 2, 0);
+	chip8.op_shiftl(0, 2, 0);
 	REQUIRE(chip8.get_register(2) == 0x10);
-	REQUIRE(chip8.get_register(1) == 0x10);
 	REQUIRE(chip8.get_register(0xf) == 1);
 }
 

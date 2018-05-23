@@ -259,10 +259,12 @@ std::tuple<Chip8::opfn_t, uint16_t, uint8_t, uint8_t> Chip8::decode_opcode(uint1
 				case 0x5:
 					return {OP_PTR(sub), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
 				case 0x6:
+					// Y passed, but unused
 					return {OP_PTR(shiftr), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
 				case 0x7:
 					return {OP_PTR(rsub), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
 				case 0xe:
+					// Y passed, but unused
 					return {OP_PTR(shiftl), 0, (opcode >> 8) & 0xf, (opcode >> 4) & 0xf};
 			}
 			break;
@@ -405,10 +407,10 @@ CHIP8_OP_XY(sub)
 	data_registers[0xf] = carry;
 }
 
-CHIP8_OP_XY(shiftr)
+CHIP8_OP_X(shiftr)
 {
-	data_registers[x] = data_registers[y] >> 1;
-	data_registers[0xf] = data_registers[y] & 1;
+	data_registers[0xf] = data_registers[x] & 1;
+	data_registers[x] >>= 1;
 }
 
 CHIP8_OP_XY(rsub)
@@ -418,11 +420,10 @@ CHIP8_OP_XY(rsub)
 	data_registers[0xf] = carry;
 }
 
-CHIP8_OP_XY(shiftl)
+CHIP8_OP_X(shiftl)
 {
-	bool carry = (data_registers[y] & 0x80) != 0;
-	data_registers[x] = (data_registers[y] <<= 1);
-	data_registers[0xf] = carry;
+	data_registers[0xf] = (data_registers[x] & 0x80) != 0;
+	data_registers[x] <<= 1;
 }
 
 CHIP8_OP_XY(if_ncmp)
