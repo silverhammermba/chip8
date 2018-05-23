@@ -388,9 +388,9 @@ TEST_CASE("Op rsub 8XY7", "[chip8]")
 		chip8.op_store(1, 12, 0);
 
 		chip8.op_rsub(0, 12, 10);
-		REQUIRE(chip8.get_register(0xf) == 0);
-		chip8.op_rsub(0, 10, 12);
 		REQUIRE(chip8.get_register(0xf) == 1);
+		chip8.op_rsub(0, 10, 12);
+		REQUIRE(chip8.get_register(0xf) == 0);
 	}
 
 	SECTION("general subtraction")
@@ -401,17 +401,17 @@ TEST_CASE("Op rsub 8XY7", "[chip8]")
 		chip8.op_rsub(0, 1, 2);
 		REQUIRE(chip8.get_register(1) == 35);
 		REQUIRE(chip8.get_register(2) == 45);
-		REQUIRE(chip8.get_register(0xf) == 0);
+		REQUIRE(chip8.get_register(0xf) == 1);
 
 		chip8.op_store(210, 3, 0);
 		chip8.op_rsub(0, 3, 2);
 		REQUIRE(chip8.get_register(3) == 91);
 		REQUIRE(chip8.get_register(2) == 45);
-		REQUIRE(chip8.get_register(0xf) == 1);
+		REQUIRE(chip8.get_register(0xf) == 0);
 
 		chip8.op_rsub(0, 2, 3);
 		REQUIRE(chip8.get_register(2) == 46);
-		REQUIRE(chip8.get_register(0xf) == 0);
+		REQUIRE(chip8.get_register(0xf) == 1);
 	}
 }
 

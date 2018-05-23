@@ -411,7 +411,7 @@ CHIP8_OP_XY(shiftr)
 
 CHIP8_OP_XY(rsub)
 {
-	bool carry = data_registers[x] > data_registers[y];
+	bool carry = data_registers[y] >= data_registers[x];
 	data_registers[x] = data_registers[y] - data_registers[x];
 	data_registers[0xf] = carry;
 }
