@@ -455,7 +455,7 @@ CHIP8_OP_XYN(disp)
 			sprite_data >>= 1;
 		}
 	}
-	screen_dirty = true;
+	screen_dirty = n > 0;
 }
 
 CHIP8_OP_X(press)

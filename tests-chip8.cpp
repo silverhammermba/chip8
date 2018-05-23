@@ -516,40 +516,56 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 	Chip8 chip8;
 
 	chip8.load_bytes(std::array<uint8_t, 1>{0xff});
-
+	chip8.op_save(Chip8::program_mem_start, 0, 0);
 	chip8.should_draw();
 
-	chip8.op_store(10, 2, 0);
-	chip8.op_store(12, 5, 0);
-
-	chip8.op_disp(1, 2, 5);
-
-	REQUIRE(chip8.should_draw() == true);
-
-	// ensure that that line of pixels is set
-	for (uint8_t x = 0; x < Chip8::screen_width; ++x)
+	SECTION("drawing nothing")
 	{
-		for (uint8_t y = 0; y < Chip8::screen_height; ++y)
+		chip8.op_disp(0, 2, 5);
+		for (uint8_t x = 0; x < Chip8::screen_width; ++x)
 		{
-			REQUIRE(chip8.get_pixel(x, y) == (y == 12 && (x >= 10 && x < 18)));
+			for (uint8_t y = 0; y < Chip8::screen_height; ++y)
+			{
+				REQUIRE(chip8.get_pixel(x, y) == false);
+			}
 		}
+		REQUIRE(chip8.should_draw() == false);
 	}
-	// and no carry
-	REQUIRE(chip8.get_register(0xf) == 0);
 
-	// still no carry for non-overlapping sprite
-	chip8.op_add(1, 5, 0);
-	chip8.op_disp(1, 2, 5);
-	REQUIRE(chip8.get_register(0xf) == 0);
-
-	// overlapping write should clear it and set carry
-	chip8.op_add(255, 5, 0);
-	chip8.op_disp(1, 2, 5);
-	for (uint8_t x = 0; x < Chip8::screen_width; ++x)
+	SECTION("drawing and overdrawing")
 	{
-		REQUIRE(chip8.get_pixel(x, 12) == false);
+		chip8.op_store(10, 2, 0);
+		chip8.op_store(12, 5, 0);
+
+		chip8.op_disp(1, 2, 5);
+
+		REQUIRE(chip8.should_draw() == true);
+
+		// ensure that that line of pixels is set
+		for (uint8_t x = 0; x < Chip8::screen_width; ++x)
+		{
+			for (uint8_t y = 0; y < Chip8::screen_height; ++y)
+			{
+				REQUIRE(chip8.get_pixel(x, y) == (y == 12 && (x >= 10 && x < 18)));
+			}
+		}
+		// and no carry
+		REQUIRE(chip8.get_register(0xf) == 0);
+
+		// still no carry for non-overlapping sprite
+		chip8.op_add(1, 5, 0);
+		chip8.op_disp(1, 2, 5);
+		REQUIRE(chip8.get_register(0xf) == 0);
+
+		// overlapping write should clear it and set carry
+		chip8.op_add(255, 5, 0);
+		chip8.op_disp(1, 2, 5);
+		for (uint8_t x = 0; x < Chip8::screen_width; ++x)
+		{
+			REQUIRE(chip8.get_pixel(x, 12) == false);
+		}
+		REQUIRE(chip8.get_register(0xf) == 1);
 	}
-	REQUIRE(chip8.get_register(0xf) == 1);
 }
 
 TEST_CASE("Op press EX9E", "[chip8]")

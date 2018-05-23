@@ -12,19 +12,7 @@ int main(int argc, char** argv)
 	}
 
 	Chip8 chip8;
-	//chip8.load_rom(argv[1]);
-	chip8.load_bytes(std::array<uint8_t, 20>{
-		0x60, 0x05, // store 5 in V0
-		0xf0, 0x29, // set I to address of sprite "5" (contents of V0)
-		0xd1, 0x15, // draw sprite pointed to by I, height 5 at 1, 1
-		0x60, 0x06, // store 6 in V0
-		0xf0, 0x29, // update sprite address
-		0xd6, 0x15, // draw sprite pointed to by I, height 5
-		0x60, 0x08, // store 6 in V0
-		0xf0, 0x29, // update sprite address
-		0xd3, 0x15, // draw sprite pointed to by I, height 5
-		0x12, 18    // infinite loop
-	});
+	chip8.load_rom(argv[1]);
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
