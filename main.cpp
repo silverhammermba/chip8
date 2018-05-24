@@ -1,3 +1,5 @@
+#include <array>
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <unordered_map>
@@ -48,23 +50,34 @@ int main(int argc, char** argv)
 		{SDL_SCANCODE_Z, 0xa}, {SDL_SCANCODE_X, 0x0}, {SDL_SCANCODE_C, 0xb}, {SDL_SCANCODE_V, 0xf},
 	};
 
-	SDL_AudioSpec desired_spec = {};
-	desired_spec.freq = 48000;
-	desired_spec.format = AUDIO_S8;
-	desired_spec.channels = 1;
-	desired_spec.samples = 0x1000;
+	constexpr int frequency = 48000;
 
 	SDL_AudioSpec spec = {};
+	SDL_AudioSpec got_spec = {};
+	spec.freq = frequency;
+	spec.format = AUDIO_S8;
+	spec.channels = 1;
+	spec.samples = 0x1000;
 
-	SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(NULL, false, &desired_spec, &spec, 0);
+	constexpr int tones_per_sec = 10; // each tone lasts 1/10 of a second
+	constexpr int samples_per_period = frequency / 440; // A440
+
+	// size is samples per tone, so we can queue the whole thing
+	std::array<uint8_t, frequency / tones_per_sec> beep_samples;
+	for (unsigned int i = 0; i < beep_samples.size(); ++i)
+	{
+		beep_samples[i] = (std::sin(((i % samples_per_period) * 2 * M_PI) / samples_per_period) + 1) * 128;
+	}
+
+	// don't allow any changes, so spec == got_spec
+	SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(NULL, false, &spec, &got_spec, 0);
 	if (!audio_device)
 	{
 		std::cerr << "SDL_OpenAudioDevice: " << SDL_GetError() << std::endl;
-		return EXIT_FAILURE;
 	}
 
 	// start playing
-	SDL_PauseAudioDevice(audio_device, false);
+	if (audio_device) SDL_PauseAudioDevice(audio_device, false);
 
 	while (running)
 	{
@@ -127,9 +140,10 @@ int main(int argc, char** argv)
 			}
 		}
 
-		if (chip8.beep())
+		if (chip8.beep() && audio_device)
 		{
-			// TODO SDL_QueueAudio
+			// XXX QueueAudio takes length *in bytes*, so this only works if each sample is a byte
+			SDL_QueueAudio(audio_device, beep_samples.data(), beep_samples.size());
 		}
 
 		SDL_RenderPresent(renderer);
