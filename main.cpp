@@ -24,7 +24,6 @@ int main(int argc, char** argv)
 	unsigned int scale = 10;
 
 	SDL_Window* window = SDL_CreateWindow("CHIP8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Chip8::screen_width * scale, Chip8::screen_height * scale, 0);
-
 	if (!window)
 	{
 		std::cerr << "SDL_CreateWindow: " << SDL_GetError() << std::endl;
@@ -49,28 +48,23 @@ int main(int argc, char** argv)
 		{SDL_SCANCODE_Z, 0xa}, {SDL_SCANCODE_X, 0x0}, {SDL_SCANCODE_C, 0xb}, {SDL_SCANCODE_V, 0xf},
 	};
 
-	uint32_t wav_length; // length of sample
-	uint8_t* wav_buffer; // buffer containing audio data
-	SDL_AudioSpec wav_spec; // metadata for audio
+	SDL_AudioSpec desired_spec = {};
+	desired_spec.freq = 48000;
+	desired_spec.format = AUDIO_S8;
+	desired_spec.channels = 1;
+	desired_spec.samples = 0x1000;
 
-	SDL_LoadWAV populates wav_spec, wave_buffer, wave_length;
+	SDL_AudioSpec spec = {};
 
-	wav_spec.callback = stream_audio; // populates audio buffer
-	wav_spec.userdata = NULL; // pointer passed to callback
-
-	// need to pass these in user data, I think
-	uint8_t* audio_pos = wav_buffer; // audio buffer
-	uint32_t* audio_len = wav_length; // remaining length of audio buffer
-
-	if (SDL_OpenAudio(&wav_spec, NULL) < 0)
+	SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(NULL, false, &desired_spec, &spec, 0);
+	if (!audio_device)
 	{
-		std::cerr << "SDL_OpenAudio: " << SDL_GetError() << std::endl;
-		// TODO can just leave it silent instead
+		std::cerr << "SDL_OpenAudioDevice: " << SDL_GetError() << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	// start playing
-	SDL_PauseAudio(false);
+	SDL_PauseAudioDevice(audio_device, false);
 
 	while (running)
 	{
@@ -133,6 +127,11 @@ int main(int argc, char** argv)
 			}
 		}
 
+		if (chip8.beep())
+		{
+			// TODO SDL_QueueAudio
+		}
+
 		SDL_RenderPresent(renderer);
 		SDL_Delay(1);
 	}
@@ -143,19 +142,4 @@ int main(int argc, char** argv)
 	SDL_Quit();
 
 	return EXIT_SUCCESS;
-}
-
-// called when we need more audio to play
-void stream_audio(void* userdata, uint8_t* stream, int length)
-{
-	if (audio_len == 0) return; // nothing left to play
-
-	// clip to end of audio
-	length = (length > audio_length ? audio_length : length);
-
-	// read length bytes from audio_pos into stream, could instead use SDL_memcpy
-	SDL_MixAudio(stream, audio_pos, length, SDL_MIX_MAXVOLUME);
-
-	audio_pos += length;
-	audio_len -= length;
 }
