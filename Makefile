@@ -10,4 +10,7 @@ main: main.o chip8.o
 tests: $(TESTS:.cpp=.o) chip8.o
 	$(CXX) $+ -o $@
 
+clean:
+	rm -rf *.o *.d main tests
+
 -include $(SRC:%.cpp=%.d)
