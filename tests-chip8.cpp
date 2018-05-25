@@ -515,8 +515,6 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 	chip8.op_save(Chip8::program_mem_start, 0, 0);
 	chip8.should_draw();
 
-	// TODO need to test case where registers[y]+n overflows (and is thus smaller than registers[y])
-
 	SECTION("drawing nothing")
 	{
 		chip8.op_disp(0, 2, 5);
@@ -530,7 +528,7 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 		REQUIRE(chip8.should_draw() == false);
 	}
 
-	SECTION("wraparound")
+	SECTION("x wraparound")
 	{
 		chip8.op_store(Chip8::screen_width - 2, 2, 0);
 		chip8.op_store(12, 5, 0);
@@ -545,6 +543,27 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 		REQUIRE(chip8.get_pixel(0, 12) == true);
 		REQUIRE(chip8.get_pixel(1, 12) == true);
 		REQUIRE(chip8.get_pixel(2, 12) == true);
+	}
+
+	SECTION("y wraparound")
+	{
+		chip8.load_bytes(std::array<uint8_t, 5>{0xff, 0xff, 0xff, 0xff, 0xff});
+		chip8.op_save(Chip8::program_mem_start, 0, 0);
+		chip8.should_draw();
+
+		chip8.op_store(Chip8::screen_height - 2, 2, 0);
+		chip8.op_store(12, 5, 0);
+
+		chip8.op_disp(5, 5, 2);
+
+		REQUIRE(chip8.should_draw() == true);
+		REQUIRE(chip8.get_register(0xf) == 0);
+
+		REQUIRE(chip8.get_pixel(12, Chip8::screen_height - 2) == true);
+		REQUIRE(chip8.get_pixel(12, Chip8::screen_height - 1) == true);
+		REQUIRE(chip8.get_pixel(12, 0) == true);
+		REQUIRE(chip8.get_pixel(12, 1) == true);
+		REQUIRE(chip8.get_pixel(12, 2) == true);
 	}
 
 	SECTION("drawing and overdrawing")
