@@ -515,6 +515,8 @@ TEST_CASE("Op disp DXYN", "[chip8]")
 	chip8.op_save(Chip8::program_mem_start, 0, 0);
 	chip8.should_draw();
 
+	// TODO need to test case where registers[y]+n overflows (and is thus smaller than registers[y])
+
 	SECTION("drawing nothing")
 	{
 		chip8.op_disp(0, 2, 5);

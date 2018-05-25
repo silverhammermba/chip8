@@ -451,13 +451,14 @@ CHIP8_OP_XYN(disp)
 	uint16_t sprite_address = address_register;
 	data_registers[0xf] = 0;
 
-	for (uint8_t row = data_registers[y]; row < data_registers[y] + n; ++row)
+	for (uint8_t line = 0; line < n; ++line)
 	{
-		uint8_t sprite_data = memory[sprite_address++];
+		uint8_t row = data_registers.at(y) + line;
+		uint8_t sprite_data = memory.at(sprite_address++);
 
 		for (uint8_t bit = 8; bit --> 0;)
 		{
-			data_registers[0xf] |= set_pixel(data_registers[x] + bit, row, sprite_data & 1);
+			data_registers[0xf] |= set_pixel(data_registers.at(x) + bit, row, sprite_data & 1);
 			sprite_data >>= 1;
 		}
 	}
