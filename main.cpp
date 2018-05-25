@@ -1,10 +1,19 @@
-#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <unordered_map>
 #include <SDL2/SDL.h>
 #include "chip8.hpp"
+
+void stream_audio(void*, uint8_t* stream, int length)
+{
+	constexpr int samples_per_period = 109; // 48000/440 is approx 109
+
+	for (int i = 0; i < length; ++i)
+	{
+		stream[i] = (std::sin(((i % samples_per_period) * 2 * M_PI) / samples_per_period) + 1) * 128;
+	}
+}
 
 int main(int argc, char** argv)
 {
@@ -50,24 +59,18 @@ int main(int argc, char** argv)
 		{SDL_SCANCODE_Z, 0xa}, {SDL_SCANCODE_X, 0x0}, {SDL_SCANCODE_C, 0xb}, {SDL_SCANCODE_V, 0xf},
 	};
 
-	constexpr int frequency = 48000;
-
 	SDL_AudioSpec spec = {};
 	SDL_AudioSpec got_spec = {};
-	spec.freq = frequency;
+	spec.freq = 48000;
 	spec.format = AUDIO_S8;
 	spec.channels = 1;
 	spec.samples = 0x1000;
+	spec.callback = stream_audio;
 
-	constexpr int tones_per_sec = 10; // each tone lasts 1/10 of a second
-	constexpr int samples_per_period = frequency / 440; // A440
-
-	// size is samples per tone, so we can queue the whole thing
-	std::array<uint8_t, frequency / tones_per_sec> beep_samples;
-	for (unsigned int i = 0; i < beep_samples.size(); ++i)
-	{
-		beep_samples[i] = (std::sin(((i % samples_per_period) * 2 * M_PI) / samples_per_period) + 1) * 128;
-	}
+	// minimum number of frames to play each beep
+	constexpr int audio_frames = 3;
+	// number of frames left in current beep
+	int remaining_audio_frames = 0;
 
 	// don't allow any changes, so spec == got_spec
 	SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(NULL, false, &spec, &got_spec, 0);
@@ -75,9 +78,6 @@ int main(int argc, char** argv)
 	{
 		std::cerr << "SDL_OpenAudioDevice: " << SDL_GetError() << std::endl;
 	}
-
-	// start playing
-	if (audio_device) SDL_PauseAudioDevice(audio_device, false);
 
 	while (running)
 	{
@@ -140,10 +140,22 @@ int main(int argc, char** argv)
 			}
 		}
 
-		if (chip8.beep() && audio_device)
+		if (audio_device)
 		{
-			// XXX QueueAudio takes length *in bytes*, so this only works if each sample is a byte
-			SDL_QueueAudio(audio_device, beep_samples.data(), beep_samples.size());
+			if (chip8.beep())
+			{
+				remaining_audio_frames = audio_frames;
+			}
+
+			if (remaining_audio_frames > 0)
+			{
+				SDL_PauseAudioDevice(audio_device, false);
+				--remaining_audio_frames;
+			}
+			else
+			{
+				SDL_PauseAudioDevice(audio_device, true);
+			}
 		}
 
 		SDL_RenderPresent(renderer);
