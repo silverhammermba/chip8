@@ -182,7 +182,7 @@ void Chip8::press(uint8_t key)
 	if (!keys.at(key) && waiting_for_input)
 	{
 		waiting_for_input = false;
-		data_registers[input_register] = key;
+		data_registers.at(input_register) = key;
 	}
 	keys.at(key) = true;
 }
@@ -215,7 +215,7 @@ void Chip8::step()
 
 uint16_t Chip8::get_opcode(std::array<uint8_t, memory_size>& _memory, uint16_t _counter)
 {
-	return (_memory[_counter] << 8) | _memory[_counter + 1];
+	return (_memory.at(_counter) << 8) | _memory.at(_counter + 1);
 }
 
 #define OP_PTR(NAME) (&Chip8::op_ ## NAME )
@@ -350,85 +350,85 @@ CHIP8_OP_N(call)
 
 CHIP8_OP_XN(if_eq)
 {
-	if (data_registers[x] == n) program_counter += 2;
+	if (data_registers.at(x) == n) program_counter += 2;
 }
 
 CHIP8_OP_XN(if_ne)
 {
-	if (data_registers[x] != n) program_counter += 2;
+	if (data_registers.at(x) != n) program_counter += 2;
 }
 
 CHIP8_OP_XY(if_cmp)
 {
-	if (data_registers[x] == data_registers[y]) program_counter += 2;
+	if (data_registers.at(x) == data_registers.at(y)) program_counter += 2;
 }
 
 CHIP8_OP_XN(store)
 {
-	data_registers[x] = n;
+	data_registers.at(x) = n;
 }
 
 CHIP8_OP_XN(add)
 {
-	data_registers[x] += n;
+	data_registers.at(x) += n;
 }
 
 CHIP8_OP_XY(set)
 {
-	data_registers[x] = data_registers[y];
+	data_registers.at(x) = data_registers.at(y);
 }
 
 CHIP8_OP_XY(or)
 {
-	data_registers[x] |= data_registers[y];
+	data_registers.at(x) |= data_registers.at(y);
 }
 
 CHIP8_OP_XY(and)
 {
-	data_registers[x] &= data_registers[y];
+	data_registers.at(x) &= data_registers.at(y);
 }
 
 CHIP8_OP_XY(xor)
 {
-	data_registers[x] ^= data_registers[y];
+	data_registers.at(x) ^= data_registers.at(y);
 }
 
 CHIP8_OP_XY(madd)
 {
-	bool carry = data_registers[y] >= (0x100 - data_registers[x]);
-	data_registers[x] += data_registers[y];
+	bool carry = data_registers.at(y) >= (0x100 - data_registers.at(x));
+	data_registers.at(x) += data_registers.at(y);
 	data_registers[0xf] = carry;
 }
 
 CHIP8_OP_XY(sub)
 {
-	bool carry = data_registers[y] > data_registers[x];
-	data_registers[x] -= data_registers[y];
+	bool carry = data_registers.at(y) > data_registers.at(x);
+	data_registers.at(x) -= data_registers.at(y);
 	data_registers[0xf] = carry;
 }
 
 CHIP8_OP_X(shiftr)
 {
-	data_registers[0xf] = data_registers[x] & 1;
-	data_registers[x] >>= 1;
+	data_registers[0xf] = data_registers.at(x) & 1;
+	data_registers.at(x) >>= 1;
 }
 
 CHIP8_OP_XY(rsub)
 {
-	bool carry = data_registers[y] >= data_registers[x];
-	data_registers[x] = data_registers[y] - data_registers[x];
+	bool carry = data_registers.at(y) >= data_registers.at(x);
+	data_registers.at(x) = data_registers.at(y) - data_registers.at(x);
 	data_registers[0xf] = carry;
 }
 
 CHIP8_OP_X(shiftl)
 {
-	data_registers[0xf] = (data_registers[x] & 0x80) != 0;
-	data_registers[x] <<= 1;
+	data_registers[0xf] = (data_registers.at(x) & 0x80) != 0;
+	data_registers.at(x) <<= 1;
 }
 
 CHIP8_OP_XY(if_ncmp)
 {
-	if (data_registers[x] != data_registers[y]) program_counter += 2;
+	if (data_registers.at(x) != data_registers.at(y)) program_counter += 2;
 }
 
 CHIP8_OP_N(save)
@@ -438,16 +438,17 @@ CHIP8_OP_N(save)
 
 CHIP8_OP_N(jmp)
 {
-	program_counter = data_registers[0] + n;
+	program_counter = data_registers.at(0) + n;
 }
 
 CHIP8_OP_XN(rand)
 {
-	data_registers[x] = rng() & n;
+	data_registers.at(x) = rng() & n;
 }
 
 CHIP8_OP_XYN(disp)
 {
+	// address register can be over 0x1000???
 	uint16_t sprite_address = address_register;
 	data_registers[0xf] = 0;
 
@@ -467,17 +468,17 @@ CHIP8_OP_XYN(disp)
 
 CHIP8_OP_X(press)
 {
-	if (keys[data_registers[x]]) program_counter += 2;
+	if (keys.at(data_registers.at(x))) program_counter += 2;
 }
 
 CHIP8_OP_X(release)
 {
-	if (!keys[data_registers[x]]) program_counter += 2;
+	if (!keys.at(data_registers.at(x))) program_counter += 2;
 }
 
 CHIP8_OP_X(getdel)
 {
-	data_registers[x] = delay_timer;
+	data_registers.at(x) = delay_timer;
 }
 
 CHIP8_OP_X(wait)
@@ -488,41 +489,41 @@ CHIP8_OP_X(wait)
 
 CHIP8_OP_X(setdel)
 {
-	delay_timer = data_registers[x];
+	delay_timer = data_registers.at(x);
 }
 
 CHIP8_OP_X(setsnd)
 {
-	sound_timer = data_registers[x];
+	sound_timer = data_registers.at(x);
 }
 
 CHIP8_OP_X(inc)
 {
-	data_registers[0xf] = address_register >= memory_size - data_registers[x];
-	address_register = (address_register + data_registers[x]) % memory_size;
+	data_registers[0xf] = address_register >= memory_size - data_registers.at(x);
+	address_register = (address_register + data_registers.at(x)) % memory_size;
 }
 
 CHIP8_OP_X(font)
 {
 	// TODO can only find this documented for x=0x0-0xf. what about others?
-	address_register = 0x50 + data_registers[x] * 5;
+	address_register = 0x50 + data_registers.at(x) * 5;
 }
 
 CHIP8_OP_X(deci)
 {
-	uint8_t num = data_registers[x];
+	uint8_t num = data_registers.at(x);
 
-	memory[address_register + 0] = num / 100;
-	memory[address_register + 1] = (num % 100) / 10;
-	memory[address_register + 2] = num % 10;
+	memory.at(address_register + 0) = num / 100;
+	memory.at(address_register + 1) = (num % 100) / 10;
+	memory.at(address_register + 2) = num % 10;
 }
 
 CHIP8_OP_X(dump)
 {
-	for (uint8_t i = 0; i <= x; ++i) memory[address_register++] = data_registers[i];
+	for (uint8_t i = 0; i <= x; ++i) memory.at(address_register++) = data_registers.at(i);
 }
 
 CHIP8_OP_X(load)
 {
-	for (uint8_t i = 0; i <= x; ++i) data_registers[i] = memory[address_register++];
+	for (uint8_t i = 0; i <= x; ++i) data_registers.at(i) = memory.at(address_register++);
 }
